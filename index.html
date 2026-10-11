@@ -1,10 +1,146 @@
 <!DOCTYPE html>
-<html lang="zh">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>个人主页</title>
-</head>
-<body>
-</body>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HYClub · 项目与作品</title>
+    <meta
+      name="description"
+      content="HYClub 的项目与作品：可在线试玩的游戏、Unity DOTS/ECS 游戏框架、HDRP 着色器库，以及若干开发工具。演示可直接点开，源码在 GitHub。"
+    />
+    <meta name="author" content="HYClub" />
+    <meta name="theme-color" content="#07090e" />
+    <link rel="canonical" href="https://huoyue.club/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="HYClub" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:title" content="HYClub · 项目与作品" />
+    <meta
+      property="og:description"
+      content="可在线试玩的游戏、Unity DOTS/ECS 游戏框架、HDRP 着色器库与开发工具。"
+    />
+    <meta property="og:url" content="https://huoyue.club/" />
+    <meta property="og:image" content="https://huoyue.club/img/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://huoyue.club/img/og.png" />
+
+    <script type="module" src="/src/js/home.js"></script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">跳到正文</a>
+
+    <header class="topbar">
+      <div class="wrap topbar__inner">
+        <a class="brand" href="/">
+          <span data-brand-mark></span>
+          <span>HYClub</span>
+          <span class="brand__sub">projects</span>
+        </a>
+        <nav class="topbar__nav" aria-label="站点导航">
+          <a href="#featured">精选</a>
+          <a href="#all">全部项目</a>
+          <a href="#sites">站点</a>
+          <a href="https://github.com/HYClub" target="_blank" rel="noopener">GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <div class="wrap">
+          <p class="hero__kicker mono">游戏 · 引擎 · 工具</p>
+          <h1 class="hero__title">
+            HYClub<br />
+            <span>把想法做成能跑起来的东西</span>
+          </h1>
+          <p class="hero__intro" id="hero-intro"></p>
+          <div class="hero__stats" id="hero-stats"></div>
+        </div>
+      </section>
+
+      <section class="section" id="featured">
+        <div class="wrap">
+          <div class="section__head">
+            <div>
+              <h2 class="section__title">精选 · 可以直接玩</h2>
+              <p class="section__desc">
+                四个能当场点开的作品。不需要安装，不需要注册。
+              </p>
+            </div>
+          </div>
+          <div class="featured" id="featured-list"></div>
+        </div>
+      </section>
+
+      <section class="section section--tight" id="all">
+        <div class="wrap">
+          <div class="section__head">
+            <div>
+              <h2 class="section__title">全部项目</h2>
+              <p class="section__desc">
+                游戏、引擎框架与工具。点分类筛选，点卡片进详情或直接打开演示。
+              </p>
+            </div>
+          </div>
+          <div class="filters" id="filters" role="group" aria-label="按分类筛选"></div>
+          <div class="grid" id="grid"></div>
+          <p class="empty" id="empty" hidden>这个分类下暂时没有项目。</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer" id="sites">
+      <div class="wrap">
+        <div class="footer__grid">
+          <div>
+            <div class="footer__title">HYClub</div>
+            <p class="footer__note">
+              独立开发者的项目索引。游戏、引擎与工具都在这里，在线演示与源码一并给出，
+              方便直接判断值不值得看。
+            </p>
+          </div>
+
+          <div>
+            <div class="footer__title">游戏</div>
+            <ul class="footer__list">
+              <li><a href="https://deepseasonar.huoyue.club/" target="_blank" rel="noopener">深海声呐员</a></li>
+              <li><a href="https://snowbros.huoyue.club/" target="_blank" rel="noopener">雪人兄弟</a></li>
+              <li><a href="https://sp.huoyue.club/" target="_blank" rel="noopener">股神异闻录</a></li>
+              <li><a href="https://vgame.huoyue.club/" target="_blank" rel="noopener">AI 影游平台</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="footer__title">引擎 / 工具</div>
+            <ul class="footer__list">
+              <li><a href="/projects/hyc-framework.html">HYC 游戏框架</a></li>
+              <li><a href="/projects/graphi-shader.html">Graphi 着色器库</a></li>
+              <li><a href="/projects/dsgs.html">DSH 游戏工作室</a></li>
+              <li><a href="/projects/vgame-toolkit.html">影游开发套件</a></li>
+              <li><a href="/projects/steamcmd-gui.html">SteamCMD 界面</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="footer__title">链接</div>
+            <ul class="footer__list">
+              <li><a href="https://github.com/HYClub" target="_blank" rel="noopener">GitHub @HYClub</a></li>
+              <li><a href="/sitemap.xml">Sitemap</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer__bottom">
+          <span>© <span data-footer-years></span> HYClub</span>
+          <span>最后更新 <span data-build-time></span></span>
+        </div>
+      </div>
+    </footer>
+  </body>
 </html>

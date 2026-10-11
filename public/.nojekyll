@@ -1,0 +1,2 @@
+# 该仓库通过 GitHub Actions 部署静态产物，根目录没有 Jekyll 需要处理的内容。
+# 保留这个文件可以避免 GitHub 侧对下划线开头的目录做 Jekyll 处理。

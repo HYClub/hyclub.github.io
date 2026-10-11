@@ -1,0 +1,9 @@
+# 全仓库统一使用 LF，避免 Windows 上提交时被转成 CRLF，
+# 导致 CI 里 checkout 出来的文件与本地不一致。
+* text=auto eol=lf
+
+# 二进制资源不做换行处理
+*.png binary
+*.webp binary
+*.jpg binary
+*.ico binary
