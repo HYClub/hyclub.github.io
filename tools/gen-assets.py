@@ -53,6 +53,18 @@ PROJECTS = [
     ("steamcmd-gui", "SteamCMD 界面", "SteamCMD GUI", "#6fa8c8", "stripes", "TOOL", None),
 ]
 
+# 用到真实截图的项目的图片来源。截图本身不入库（.asset-src/ 已被 gitignore），
+# 缺失时脚本会打印对应地址，手动下载到 .asset-src/ 再重跑即可。
+SOURCES = {
+    "sonar-main.jpg": "https://raw.githubusercontent.com/HYClub/DeepseaSonar-Demo/main/screenshots/Main.jpg",
+    "sonar-level.jpg": "https://raw.githubusercontent.com/HYClub/DeepseaSonar-Demo/main/screenshots/Level.jpg",
+    "sonar-map.jpg": "https://raw.githubusercontent.com/HYClub/DeepseaSonar-Demo/main/screenshots/map.jpg",
+    "sonar-task.jpg": "https://raw.githubusercontent.com/HYClub/DeepseaSonar-Demo/main/screenshots/Task.jpg",
+    "sp-shot6.jpg": "https://raw.githubusercontent.com/HYClub/stock-persona/gh-pages/img/shot-6.jpg",
+    "sp-shot1.jpg": "https://raw.githubusercontent.com/HYClub/stock-persona/gh-pages/img/shot-1.jpg",
+    "sp-title.jpg": "https://raw.githubusercontent.com/HYClub/stock-persona/gh-pages/img/title-bg.jpg",
+}
+
 
 def hex_rgb(value: str) -> tuple[int, int, int]:
     value = value.lstrip("#")
@@ -319,7 +331,14 @@ def build_cover(pid, name, name_en, color_hex, motif, kicker, shot, index) -> Im
     color = hex_rgb(color_hex)
 
     if shot:
-        src = Image.open(SRC / shot).convert("RGB")
+        path = SRC / shot
+        if not path.exists():
+            url = SOURCES.get(shot, "(来源未知)")
+            raise SystemExit(
+                f"缺少原始截图：{path}\n"
+                f"请先下载到该路径再重跑本脚本：\n  {url}"
+            )
+        src = Image.open(path).convert("RGB")
         # 中心裁剪到目标比例
         target = COVER_W / COVER_H
         w, h = src.size
