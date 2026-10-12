@@ -20,7 +20,6 @@ export const icons = {
   github: svg(
     '<path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.3 4.3 0 0 0-.1-3.2s-1-.3-3.4 1.3a11.6 11.6 0 0 0-6 0C6.8 1.8 5.8 2.1 5.8 2.1a4.3 4.3 0 0 0-.1 3.2A4.6 4.6 0 0 0 4.4 8.7c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/>',
   ),
-  download: svg('<path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 20h16"/>'),
   arrow: svg('<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/>'),
   arrowLeft: svg('<path d="M19 12H5"/><path d="m11 18-6-6 6-6"/>'),
   doc: svg(
@@ -55,102 +54,139 @@ export function hexToRgb(hex) {
 export const accentStyle = (project) =>
   `--accent:${project.accent};--accent-rgb:${hexToRgb(project.accent)}`
 
-/** 项目在站内的落点：有详情页走站内，否则走在线演示。 */
-export function projectHref(project) {
-  return project.detail ? `/projects/${project.id}.html` : project.links.demo
+/* ---------------------------------------------------------------- CTA */
+/**
+ * 卡片主按钮的语义。标签必须说实话 ——
+ * 「能玩的游戏」和「一页介绍」不该共用同一个词。
+ */
+export const CTA = {
+  play: { label: '在线试玩', badge: '可以玩', accent: true, live: true },
+  demo: { label: '查看演示', badge: '演示页', accent: true, live: false },
+  explore: { label: '进去探索', badge: '可探索', accent: true, live: false },
+  intro: { label: '查看介绍', badge: '项目介绍', accent: true, live: false },
+  detail: { label: '查看详情', badge: '站内详情', accent: false, live: false },
 }
 
-/** 封面左上角的状态标。 */
-export function statusMeta(project) {
-  if (project.links.play) return { text: '在线试玩', live: true, accent: true }
-  if (project.links.demo) return { text: '在线演示', live: true, accent: true }
-  return { text: '站内详情', live: false, accent: false }
+const ctaOf = (project) => CTA[project.cta] ?? CTA.detail
+
+/** 卡片本身的落点：有自己的页面就直接跳页面，没有才走站内详情页。 */
+export function cardHref(project) {
+  return project.links.demo ?? `/projects/${project.id}.html`
 }
 
-/** 封面右上角：开源 / 未开源。 */
-export function opennessMeta(project) {
-  if (project.links.source) {
-    return { text: project.license ?? '开源', strong: false }
+export function isExternal(project) {
+  return Boolean(project.links.demo)
+}
+
+/** 主按钮的落点。 */
+function primaryHref(project) {
+  if (project.cta === 'play' && project.links.play) return project.links.play
+  if (project.links.demo) return project.links.demo
+  return `/projects/${project.id}.html`
+}
+
+function primaryIcon(project) {
+  if (project.cta === 'play') return icons.play
+  if (project.links.demo) return icons.external
+  return icons.doc
+}
+
+/**
+ * 右上角的开源徽章。
+ *
+ * 判断依据是项目数据里的 `openSource` —— 也就是「这个项目的源码本身公不公开」，
+ * 而不是「有没有公开仓库」或「有没有 Pages」。有公开的演示页仓库、
+ * 有只放构建产物的分支，都不等于项目开源。
+ *
+ * 有许可证时渲染成两段式徽章（标签 | 值），比单独一个「MIT」清楚得多。
+ */
+export function opennessBadgeHtml(project) {
+  if (!project.openSource) {
+    return `<span class="pill">未开源</span>`
   }
-  // 私有仓库与「源码未公开」都归到这里
-  return { text: '未开源', strong: false }
+  if (!project.license) {
+    return `<span class="pill pill--accent"><span class="pill__dot"></span>开源</span>`
+  }
+  return (
+    `<span class="pill pill--split">` +
+    `<span class="pill__seg">开源</span>` +
+    `<span class="pill__seg pill__seg--value">${escapeHtml(project.license)}</span>` +
+    `</span>`
+  )
 }
 
 /* -------------------------------------------------------------- 卡片 */
-export function cardHtml(project, { feature = false, eager = false } = {}) {
-  const status = statusMeta(project)
-  const openness = opennessMeta(project)
-  const href = projectHref(project)
-  const external = !project.detail
+export function cardHtml(project, { size = 'sm' } = {}) {
+  const cta = ctaOf(project)
+  const href = cardHref(project)
+  const external = isExternal(project)
+  const tagLimit = size === 'lg' ? 5 : 3
+  const hasCover = Boolean(project.cover)
 
-  const badges =
-    `<div class="card__badges">` +
-    `<span class="pill ${status.accent ? 'pill--accent' : ''} ${status.live ? 'pill--live' : ''}">` +
-    `<span class="pill__dot"></span>${escapeHtml(status.text)}</span>` +
-    `<span class="pill">${escapeHtml(openness.text)}</span>` +
-    `</div>`
+  const badgesInner =
+    `<span class="pill ${cta.accent ? 'pill--accent' : ''} ${cta.live ? 'pill--live' : ''}">` +
+    `<span class="pill__dot"></span>${escapeHtml(cta.badge)}</span>` +
+    opennessBadgeHtml(project)
 
   const tags = (project.tech ?? [])
-    .slice(0, feature ? 5 : 4)
+    .slice(0, tagLimit)
     .map((tag) => `<li class="tag">${escapeHtml(tag)}</li>`)
     .join('')
 
-  const actions = []
-  if (project.links.play) {
+  const primaryTarget = primaryHref(project)
+  const actions = [
+    `<a class="btn btn--primary" href="${escapeHtml(primaryTarget)}"` +
+      `${external || project.cta === 'play' ? ' target="_blank" rel="noopener"' : ''}>` +
+      `${primaryIcon(project)}<span>${escapeHtml(cta.label)}</span></a>`,
+  ]
+
+  // 主按钮没落在项目主页时（例如「在线试玩」直接进了游戏），
+  // 再给一个回主页的入口，别让人找不到项目本身的介绍页。
+  if (project.links.demo && primaryTarget !== project.links.demo) {
     actions.push(
-      `<a class="btn btn--primary" href="${escapeHtml(project.links.play)}" target="_blank" rel="noopener">` +
-        `${icons.play}<span>在线试玩</span></a>`,
-    )
-  } else if (project.links.demo) {
-    actions.push(
-      `<a class="btn btn--primary" href="${escapeHtml(project.links.demo)}" target="_blank" rel="noopener">` +
-        `${icons.external}<span>打开演示</span></a>`,
-    )
-  } else {
-    actions.push(
-      `<a class="btn btn--primary" href="${escapeHtml(href)}">` +
+      `<a class="btn" href="${escapeHtml(project.links.demo)}" target="_blank" rel="noopener">` +
         `${icons.doc}<span>查看详情</span></a>`,
     )
   }
 
-  if (project.links.source) {
+  // 源码按钮跟着 openSource 走，不跟着「有没有 Pages」走 ——
+  // 只有项目源码本身公开时才给入口。
+  if (project.openSource && project.links.source) {
     actions.push(
       `<a class="btn" href="${escapeHtml(project.links.source)}" target="_blank" rel="noopener">` +
         `${icons.github}<span>源码</span></a>`,
     )
   }
-  if (project.links.download) {
-    actions.push(
-      `<a class="btn" href="${escapeHtml(project.links.download)}" target="_blank" rel="noopener">` +
-        `${icons.download}<span>下载</span></a>`,
-    )
-  }
-  // 有在线演示、同时又有详情页时，补一个站内详情入口
-  if (project.detail && (project.links.demo || project.links.play)) {
-    actions.push(
-      `<a class="btn btn--ghost" href="/projects/${escapeHtml(project.id)}.html">` +
-        `${icons.arrow}<span>详情</span></a>`,
-    )
-  }
 
-  const media =
-    `<div class="card__media">` +
-    `<img src="${escapeHtml(project.cover)}" alt="${escapeHtml(project.name)} 封面" ` +
-    `width="1200" height="750" ${eager ? 'fetchpriority="high"' : 'loading="lazy" decoding="async"'} />` +
-    badges +
-    `</div>`
+  // 整卡可点：一个铺满卡片的隐形链接；按钮层级更高，仍然各自可点
+  const stretch =
+    `<a class="card__stretch" href="${escapeHtml(href)}"` +
+    `${external ? ' target="_blank" rel="noopener"' : ''}>` +
+    `<span class="sr-only">打开 ${escapeHtml(project.name)}</span></a>`
+
+  // 有截图的才放图。没有截图的项目不硬凑配图 ——
+  // 改为纯排版卡片，用主题色底与顶边线撑住，比塞一张假图诚实。
+  const media = hasCover
+    ? `<div class="card__media">` +
+      `<img src="${escapeHtml(project.cover)}" alt="" width="1200" height="750" ` +
+      `loading="lazy" decoding="async" />` +
+      `<div class="card__badges">${badgesInner}</div>` +
+      `</div>`
+    : ''
 
   const body =
     `<div class="card__body">` +
+    (hasCover ? '' : `<div class="card__badges card__badges--static">${badgesInner}</div>`) +
     `<h3 class="card__title">${escapeHtml(project.name)}` +
     `<span class="card__title-en">${escapeHtml(project.nameEn)}</span></h3>` +
-    `<p class="card__line">${escapeHtml(project.oneLiner)}</p>` +
+    `<p class="card__line">${escapeHtml(project.blurb)}</p>` +
     `<ul class="card__tags">${tags}</ul>` +
     `</div>`
 
   return (
-    `<article class="card ${feature ? 'card--feature' : ''}" style="${accentStyle(project)}" ` +
-    `data-category="${escapeHtml(project.category)}" data-id="${escapeHtml(project.id)}">` +
+    `<article class="card card--${size}${hasCover ? '' : ' card--plain'}" ` +
+    `style="${accentStyle(project)}" data-id="${escapeHtml(project.id)}">` +
+    stretch +
     media +
     body +
     `<div class="card__actions">${actions.join('')}</div>` +
@@ -158,7 +194,22 @@ export function cardHtml(project, { feature = false, eager = false } = {}) {
   )
 }
 
-/* ------------------------------------------------------- 站点图标（内联 SVG） */
+/* ----------------------------------------------------- 「更多」磁贴 */
+export function moreTileHtml({ href, kicker, title, desc, meta }) {
+  return (
+    `<a class="tile-more" href="${escapeHtml(href)}" target="_blank" rel="noopener">` +
+    `<span class="tile-more__kicker mono">${escapeHtml(kicker)}</span>` +
+    `<span class="tile-more__title">${escapeHtml(title)}</span>` +
+    `<span class="tile-more__desc">${escapeHtml(desc)}</span>` +
+    `<span class="tile-more__foot">` +
+    `<span class="tile-more__meta mono">${escapeHtml(meta)}</span>` +
+    `<span class="tile-more__icon">${icons.arrow}</span>` +
+    `</span>` +
+    `</a>`
+  )
+}
+
+/* --------------------------------------------- 站点图标（内联 SVG） */
 export const brandMark = `<svg class="brand__mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
   <rect x="1.2" y="1.2" width="29.6" height="29.6" rx="9" stroke="rgba(255,255,255,.22)" stroke-width="1.4"/>
   <path d="M10 21.5V10.5" stroke="#4f8cff" stroke-width="2.4" stroke-linecap="round"/>

@@ -276,33 +276,14 @@ button {
 }
 
 .hero__intro {
-  max-width: 62ch;
+  max-width: 64ch;
   color: var(--text-dim);
   font-size: clamp(1rem, 1.4vw, 1.12rem);
+  line-height: 1.85;
 }
 
-.hero__stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 40px;
-  margin-top: 44px;
-  padding-top: 28px;
-  border-top: 1px solid var(--line);
-}
-
-.stat__value {
-  font-size: 1.85rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-
-.stat__label {
-  color: var(--text-mute);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+.hero__intro p + p {
+  margin-top: 10px;
 }
 
 /* --------------------------------------------------------------- section */
@@ -311,6 +292,11 @@ button {
 }
 
 .section--tight {
+  padding-top: 26px;
+}
+
+/* 紧跟在首屏后面的第一个区块，不需要再顶一次整段留白 */
+.hero + .section {
   padding-top: 26px;
 }
 
@@ -335,11 +321,17 @@ button {
   max-width: 60ch;
 }
 
-/* -------------------------------------------------------------- featured */
-.featured {
+/* --------------------------------------------------------------- board */
+/* 4 列排布板：lg 卡占 2 列（一行 2 个），sm 卡占 1 列（一行 4 个）。
+   顺序与大小由 projects.js 的 BOARD 决定，改排布不用动 CSS。 */
+.board {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.card--lg {
+  grid-column: span 2;
 }
 
 /* ------------------------------------------------------------------ card */
@@ -372,15 +364,26 @@ button {
     0 0 0 1px rgba(var(--accent-rgb), 0.12);
 }
 
+/* 整卡可点：一张铺满卡片的隐形链接 */
+.card__stretch::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
 .card__media {
   position: relative;
   aspect-ratio: 16 / 10;
+  /* 封面上限：窄屏退到 2/1 列时卡片会变很宽，不封顶封面会高到把正文顶走 */
+  max-height: 250px;
   overflow: hidden;
   background: var(--bg-soft);
 }
 
-.card--feature .card__media {
+.card--lg .card__media {
   aspect-ratio: 16 / 9;
+  max-height: 300px;
 }
 
 .card__media img {
@@ -413,6 +416,45 @@ button {
   gap: 10px;
 }
 
+/* 没有截图的卡片：标签回到正文流里，不再绝对定位 */
+.card__badges--static {
+  position: static;
+  inset: auto;
+  margin-bottom: 6px;
+}
+
+/* ------------------------------------------------------ 无配图的卡片 */
+/* 项目没有真实截图时不塞占位图，只用主题色底做区分。
+   版面必须和有图的卡片**同一套规则** —— 没有图只是少一张图，
+   不是换一种卡片：角标同样顶到最上，标签同样压到底部。 */
+.card--plain {
+  position: relative;
+  background:
+    radial-gradient(125% 95% at 100% 0%, rgba(var(--accent-rgb), 0.17), transparent 62%),
+    linear-gradient(180deg, var(--surface) 0%, var(--bg-soft) 100%);
+}
+
+.card--plain .card__body {
+  /* 14px 与图片卡角标的 top: 14px 对齐，同一行里两行角标才会齐平 */
+  padding-top: 14px;
+}
+
+/* 顶部一道主题色细线，给没有配图的卡片一个识别记号（比叠一个
+   大字号序号稳妥 —— 序号会跟右上角的标签和右下角的按钮打架） */
+.card--plain::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    rgba(var(--accent-rgb), 0.95),
+    rgba(var(--accent-rgb), 0.12)
+  );
+}
+
 .pill {
   display: inline-flex;
   align-items: center;
@@ -434,6 +476,25 @@ button {
   color: rgb(var(--accent-rgb));
   border-color: rgba(var(--accent-rgb), 0.42);
   background: rgba(var(--accent-rgb), 0.14);
+}
+
+/* 两段式徽章：左边标签、右边值，对应 shields.io 那种 license | MIT。
+   只在「已开源且标了许可证」时用，比单独一个 MIT 清楚。 */
+.pill--split {
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.pill__seg {
+  padding: 5px 10px;
+}
+
+.pill__seg--value {
+  color: rgb(var(--accent-rgb));
+  background: rgba(var(--accent-rgb), 0.18);
+  border-left: 1px solid rgba(var(--accent-rgb), 0.34);
+  font-weight: 700;
 }
 
 .pill__dot {
@@ -474,11 +535,11 @@ button {
   align-items: baseline;
   flex-wrap: wrap;
   gap: 10px;
-  font-size: 1.22rem;
+  font-size: 1.06rem;
 }
 
-.card--feature .card__title {
-  font-size: 1.4rem;
+.card--lg .card__title {
+  font-size: 1.42rem;
 }
 
 .card__title-en {
@@ -492,6 +553,13 @@ button {
 .card__line {
   color: var(--text-dim);
   font-size: 0.94rem;
+  line-height: 1.72;
+}
+
+/* 小卡把正文压小一档，但不截断 —— 项目介绍要写完整，
+   截成三行只会让每个项目看起来都差不多 */
+.card--sm .card__line {
+  font-size: 0.87rem;
 }
 
 .card__tags {
@@ -514,10 +582,34 @@ button {
 }
 
 .card__actions {
+  position: relative;
+  z-index: 3; /* 必须高于 .card__stretch，否则按钮点不到 */
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   padding: 0 24px 22px;
+}
+
+/* 小卡在 4 列里只有 ~270px 宽，内边距与按钮都收紧一档，避免按钮换行 */
+.card--sm .card__body {
+  padding: 18px 20px 16px;
+  gap: 10px;
+}
+
+.card--sm .card__actions {
+  gap: 8px;
+  padding: 0 20px 20px;
+}
+
+.card--sm .btn {
+  padding: 8px 13px;
+  font-size: 0.82rem;
+}
+
+.card--sm .card__badges {
+  top: 11px;
+  left: 11px;
+  right: 11px;
 }
 
 /* --------------------------------------------------------------- buttons */
@@ -573,57 +665,119 @@ button {
   background: rgba(255, 255, 255, 0.05);
 }
 
-/* -------------------------------------------------------------- filters */
-.filters {
+/* ------------------------------------------------------------ 更多磁贴 */
+/* 排布板末尾的出口。它占 2 列、会被同行拉伸，所以内容竖直居中，
+   并用「小标 + 分隔线 / 大标题 / 说明 / 署名 + 箭头」四段把版面撑满。 */
+.tile-more {
+  position: relative;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 26px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+  grid-column: span 2;
+  min-height: 200px;
+  padding: 36px 38px;
+  border: 1px dashed var(--line-hi);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.015);
+  overflow: hidden;
+  color: var(--text-dim);
+  transition: border-color 0.25s var(--ease), background 0.25s var(--ease),
+    transform 0.25s var(--ease), color 0.25s var(--ease);
 }
 
-.chip {
+/* 悬停时右上角透出一层薄光，暗示这是一个出口 */
+.tile-more::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    92% 130% at 100% 0%,
+    rgba(79, 140, 255, 0.18),
+    transparent 62%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s var(--ease);
+}
+
+.tile-more:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.32);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+}
+
+.tile-more:hover::before {
+  opacity: 1;
+}
+
+/* 小标后面接一条渐隐的横线，把这一行拉满整幅宽度 */
+.tile-more__kicker {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.86rem;
+  letter-spacing: 0.22em;
+  color: var(--text-dim);
+}
+
+.tile-more__kicker::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--line-hi), transparent);
+}
+
+.tile-more__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--text);
+}
+
+.tile-more__desc {
+  max-width: 36ch;
+  font-size: 0.94rem;
+  line-height: 1.7;
+  color: var(--text-mute);
+}
+
+.tile-more__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.tile-more__meta {
+  color: var(--text-mute);
+}
+
+.tile-more__icon {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text-dim);
-  font-size: 0.88rem;
-  transition: color 0.2s var(--ease), background 0.2s var(--ease),
-    border-color 0.2s var(--ease);
-}
-
-.chip:hover {
+  justify-content: center;
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1px solid var(--line-hi);
   color: var(--text);
-  border-color: var(--line-hi);
+  transition: transform 0.25s var(--ease), border-color 0.25s var(--ease),
+    background 0.25s var(--ease);
 }
 
-.chip[aria-pressed="true"] {
-  color: #fff;
-  background: rgba(var(--accent-rgb), 0.18);
-  border-color: rgba(var(--accent-rgb), 0.55);
+.tile-more:hover .tile-more__icon {
+  transform: translateX(7px);
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.07);
 }
 
-.chip__count {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  opacity: 0.65;
-}
-
-/* ----------------------------------------------------------------- grid */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 22px;
-}
-
-.empty {
-  padding: 60px 0;
-  text-align: center;
-  color: var(--text-mute);
+.tile-more__icon svg {
+  width: 19px;
+  height: 19px;
 }
 
 /* --------------------------------------------------------------- footer */
@@ -669,6 +823,13 @@ button {
   color: var(--text-mute);
   font-size: 0.86rem;
   max-width: 40ch;
+}
+
+.footer__stats {
+  flex: 1;
+  text-align: center;
+  color: var(--text-mute);
+  opacity: 0.85;
 }
 
 .footer__bottom {
@@ -1017,13 +1178,24 @@ button {
 }
 
 /* ---------------------------------------------------------- responsive */
-@media (max-width: 900px) {
+/* 4 列需要每列至少 ~260px（4×260 + 3×20 间距 + 两侧留白 ≈ 1150px），
+   容器装不下就退到 2 列。此时大卡也不再多占一列 —— 整行宽的卡会把 16:9
+   的封面裁成 3:1 的横幅，母题与截图都会被裁掉。 */
+@media (max-width: 1150px) {
   .footer__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .featured {
-    grid-template-columns: minmax(0, 1fr);
+  .board {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .card--lg {
+    grid-column: span 1;
+  }
+
+  .tile-more {
+    grid-column: span 2;
   }
 }
 
@@ -1040,13 +1212,21 @@ button {
     padding: 66px 0 52px;
   }
 
-  .hero__stats {
-    gap: 18px 30px;
-  }
-
-  .grid,
+  .board,
   .features {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .card--lg,
+  .tile-more {
+    grid-column: span 1;
+  }
+
+  /* 单列时卡片很宽，封面收成更扁的横幅才不至于占满一屏 */
+  .card__media,
+  .card--lg .card__media {
+    aspect-ratio: 16 / 9;
+    max-height: 230px;
   }
 
   .specs {

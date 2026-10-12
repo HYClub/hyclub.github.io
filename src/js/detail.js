@@ -63,13 +63,7 @@ if (project.links.demo) {
       `${icons.external}<span>打开演示页</span></a>`,
   )
 }
-if (project.links.download) {
-  linkButtons.push(
-    `<a class="btn" href="${escapeHtml(project.links.download)}" target="_blank" rel="noopener">` +
-      `${icons.download}<span>下载</span></a>`,
-  )
-}
-if (project.links.source) {
+if (project.openSource && project.links.source) {
   linkButtons.push(
     `<a class="btn" href="${escapeHtml(project.links.source)}" target="_blank" rel="noopener">` +
       `${icons.github}<span>查看源码</span></a>`,
@@ -137,11 +131,15 @@ $('#main').innerHTML = `
       <p class="detail-hero__summary">${escapeHtml(project.summary)}</p>
       <div class="meta">${metaHtml}</div>
       <div class="detail-links">${linkButtons.join('')}</div>
-      <figure class="detail-cover">
-        <img src="${escapeHtml(project.cover)}" alt="${escapeHtml(
-          project.name,
-        )} 封面" width="1200" height="750" fetchpriority="high" />
-      </figure>
+      ${
+        project.cover
+          ? `<figure class="detail-cover">
+               <img src="${escapeHtml(project.cover)}" alt="${escapeHtml(
+                 project.name,
+               )} 封面" width="1200" height="750" fetchpriority="high" />
+             </figure>`
+          : ''
+      }
     </div>
   </div>
 

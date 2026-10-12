@@ -1,35 +1,56 @@
 /**
  * projects.js —— 展示站的唯一数据源
  *
- * 首页卡片、分类筛选、详情页内容、分享预览图，全部由这个文件驱动。
+ * 首页排布、卡片按钮、详情页内容、分享预览图，全部由这个文件驱动。
  * 增删项目、改文案、换主题色，只改这里（外加重跑 tools/gen-assets.py 生成封面）。
  *
  * 字段约定：
- *   category   game | engine | tool        决定它出现在哪个筛选分组
- *   featured   是否进入首屏「精选」大卡区
+ *   category   game | engine | tool        卡片上的分组标签
+ *   cta        卡片主按钮的语义，见 components.js 的 CTA 表 ——
+ *              play 真的能玩 / demo 演示页 / explore 可探索 / intro 介绍页 / detail 站内详情。
+ *              标签必须说实话：不是能玩的游戏就不要写「在线试玩」。
  *   accent     项目主题色，同时用于卡片描边、悬停辉光与封面配色
  *   links      值为 null 的按钮不会渲染（而不是渲染成灰色假按钮）
- *   detail     为 null 表示该项目有在线演示，卡片直接跳外链；
+ *   detail     为 null 表示该项目有在线站点，卡片直接跳外链；
  *              有内容则渲染 projects/<id>.html 详情页
  */
 
 export const SITE = {
   name: 'HYClub',
   title: 'HYClub · 项目与作品',
-  tagline: '游戏 · 引擎 · 工具',
-  intro:
-    '一个人做出来的东西，从能玩的游戏到能落地的引擎与工具。所有在线演示都可以直接点开试，源码在 GitHub 上。',
+  tagline: '游戏 · 引擎 · 工具 · AI',
+  intro: [
+    '独立开发者。做游戏，也做支撑游戏的引擎与工具 —— 从 Unity 底层的 DOTS/ECS 框架，到打开浏览器就能玩的成品。习惯把一件事从头做到能用：底层自己写，手感自己调，最后一公里也自己铺完。',
+    '深度使用 AI 创造，也一直在探索它的边界：不只让它补全代码，而是和它一起写框架、做游戏、搭内容生产线，看看一个人借助 AI 究竟能把产出推到多远。',
+  ],
   url: 'https://huoyue.club/',
   github: 'https://github.com/HYClub',
   since: 2018,
-  ogImage: '/img/og.png',
+  ogImage: '/img/og.jpg',
 }
 
-export const CATEGORIES = [
-  { id: 'all', label: '全部' },
-  { id: 'game', label: '游戏' },
-  { id: 'engine', label: '引擎 / 框架' },
-  { id: 'tool', label: '工具' },
+/**
+ * 首页排布（顺序即显示顺序）。
+ *
+ * 栅格是 4 列：
+ *   lg = 占 2 列的大卡，一行放 2 个
+ *   sm = 占 1 列的小卡，一行放 4 个
+ *
+ * 想换排布就调整这个数组，卡片样式会自动跟着 size 走。
+ * 末尾的「更多 → GitHub」卡片由 home.js 自动补上。
+ */
+export const BOARD = [
+  // 第一行 · 两个大卡，最重要的开源项目
+  { id: 'hyc-framework', size: 'lg' },
+  { id: 'dsgs', size: 'lg' },
+  // 第二行 · 四个小卡
+  { id: 'vgame', size: 'sm' },
+  { id: 'vgame-toolkit', size: 'sm' },
+  { id: 'snow-bros', size: 'sm' },
+  { id: 'deep-sea-sonar', size: 'sm' },
+  // 第三行 · 两个小卡 + 末尾的「更多」
+  { id: 'stock-persona', size: 'sm' },
+  { id: 'steamcmd-gui', size: 'sm' },
 ]
 
 export const PROJECTS = [
@@ -41,23 +62,25 @@ export const PROJECTS = [
     name: '深海声呐员',
     nameEn: 'Deep Sea Sonar',
     tagline: '在漆黑深海里，用声呐找出唯一的活路',
-    oneLiner: '声呐探测 + 潜艇生存。浏览器直接试玩，也可下载安卓与 Windows 版。',
+    blurb:
+      '以深海潜艇为主题的声呐探索游戏。海域几乎全黑，只能靠声呐回波判断地形与目标，在有限的资源下完成关卡任务。已发布 Android 与 Windows 版，同时提供浏览器内直接试玩的 WebGL 构建。',
     summary:
       '一款以深海潜艇为主题的声呐探索游戏。海域几乎全黑，玩家只能依靠声呐回波判断地形与目标，在有限的资源下完成关卡任务。已发布 Android APK 与 Windows 版，同时提供浏览器内直接试玩的 WebGL 构建。',
     category: 'game',
-    featured: true,
     status: 'released',
     year: '2026',
     version: 'v1.0',
     license: null,
     lang: 'C#',
+    openSource: false,
     accent: '#3ec9d6',
+    cta: 'play',
     cover: '/img/cover-deep-sea-sonar.webp',
     tech: ['Unity', 'C#', 'WebGL', 'Android'],
     links: {
       demo: 'https://deepseasonar.huoyue.club/',
       play: 'https://deepseasonar.huoyue.club/game/index.html',
-      download: 'https://github.com/HYClub/DeepseaSonar-Demo/releases/latest',
+      // 下载（APK / Windows）在项目主页上有，卡片不再单列一个下载按钮
       source: null,
     },
     detail: null,
@@ -67,24 +90,26 @@ export const PROJECTS = [
     name: '雪人兄弟',
     nameEn: 'Snow Bros',
     tagline: '把敌人冻成雪球，再一脚踢出去',
-    oneLiner: '经典街机玩法的浏览器复刻：喷雪、滚雪球、连锁击杀。',
+    blurb:
+      '经典街机玩法的浏览器复刻。喷出雪雾把敌人冻成雪球，推下平台、或让它撞上其他敌人形成连锁得分；实现了巡逻与飞行两类敌人的行为逻辑、可破坏地形与道具系统。纯前端渲染，打开即玩。',
     summary:
       '经典玩法的网页复刻。玩家喷出雪雾把敌人冻成雪球，推下平台或让它撞击其他敌人形成连锁得分。实现了巡逻与飞行两类敌人的行为逻辑、可破坏地形与道具系统，纯前端渲染，打开即玩，源码公开。',
     category: 'game',
-    featured: true,
     status: 'released',
     year: '2026',
     version: null,
     license: null,
     lang: 'JavaScript',
+    openSource: false,
     accent: '#8fd8ff',
-    cover: '/img/cover-snow-bros.webp',
+    cta: 'demo',
+    cover: null,
     tech: ['JavaScript', 'Canvas', 'CSS'],
     links: {
       demo: 'https://snowbros.huoyue.club/',
       play: 'https://snowbros.huoyue.club/',
       download: null,
-      source: 'https://github.com/HYClub/SnowBros-Page',
+      source: null, // 演示页仓库不作为「项目源码」对外；开源状态见 openSource
     },
     detail: null,
   },
@@ -93,17 +118,19 @@ export const PROJECTS = [
     name: '股神异闻录',
     nameEn: 'Stock Persona',
     tagline: '当 K 线图变成封印怪物的符咒',
-    oneLiner: 'K 线战斗卡牌 RPG —— 同一段剧情，用 7 种完全不同的玩法呈现。',
+    blurb:
+      '把股市隐喻做成卡牌 RPG 的互动叙事实验。核心命题是「同一天，七个人，七种活法」：前五种样式的剧情完全一致，变的只有呈现与操作方式；后两种连玩法本身都换掉了。七种都能在线点开试。',
     summary:
       '一个把股市隐喻做成卡牌 RPG 的互动叙事实验。核心命题是「同一天，七个人，七种活法」：前五种样式的剧情内容完全一致，变的只有呈现与操作方式；后两种连玩法本身都换掉了。七种样式都能在线点开直接试。',
     category: 'game',
-    featured: true,
     status: 'released',
     year: '2026',
     version: null,
     license: null,
     lang: 'HTML',
+    openSource: false,
     accent: '#e0455f',
+    cta: 'explore',
     cover: '/img/cover-stock-persona.webp',
     tech: ['HTML', 'JavaScript', 'CSS', '互动叙事'],
     links: {
@@ -119,18 +146,20 @@ export const PROJECTS = [
     name: 'AI 影游平台',
     nameEn: 'vgame',
     tagline: '把互动影视的生产与变现链路画清楚',
-    oneLiner: 'AI 影游平台的生态设计演示：创作闭环、增长闭环与订阅权益。',
+    blurb:
+      '一份关于 AI 互动影视平台的产品演示。它把「创作者用 AI 生产内容 → 平台分发 → 用户付费打赏 → 反哺创作」的完整闭环拆成可点开的链路，覆盖创作全流程、效率提升、零代码门槛、订阅级别与产线权益，以及从发布到转化的激励设计。',
     summary:
       '一份关于 AI 互动影视平台的产品演示页。它把「创作者用 AI 生产内容 → 平台分发 → 用户付费与打赏 → 反哺创作」的完整闭环拆成可点开的链路，覆盖创作全流程、效率提升、零代码门槛、订阅级别与产线权益，以及从发布到转化的激励设计。',
     category: 'game',
-    featured: true,
     status: 'released',
     year: '2026',
     version: null,
     license: null,
     lang: 'HTML',
+    openSource: false,
     accent: '#a06bff',
-    cover: '/img/cover-vgame.webp',
+    cta: 'intro',
+    cover: null,
     tech: ['产品设计', 'HTML', '生态设计'],
     links: {
       demo: 'https://vgame.huoyue.club/',
@@ -149,18 +178,20 @@ export const PROJECTS = [
     name: 'HYC 游戏框架',
     nameEn: 'HYC Framework',
     tagline: 'Unity 2022.3 上的 DOTS/ECS 数据驱动游戏框架',
-    oneLiner: 'Blob 配置管线、ECS UI、多语言本地化与可视化行为树，配套 28 篇中文文档。',
+    blurb:
+      '一套跑在 Unity 2022.3 上的 DOTS/ECS 数据驱动框架。配置、本地化与行为树全部以不可变 Blob 存储，运行期零托管分配、可 Burst 友好遍历；Excel 在生成期烘焙成 blittable 结构体，玩法层查表不需要 World 句柄。UI 是 ECS System 而非窗口管理器，行为树可视化编辑后序列化为纯数据、由解释器逐帧执行。包内附 28 篇中文深度文档。',
     summary:
       '一套基于 Unity 2022.3、以 DOTS/ECS 数据驱动为核心的轻量级游戏开发框架，内置配置管线、多语言本地化、ECS UI、输入与热键、过场演出与可视化行为树。它用不可变 Blob 承载配置与行为树数据，把运行期托管分配降到最低，并配套完整编辑器工具链。',
     category: 'engine',
-    featured: false,
     status: 'released',
     year: '2026',
     version: '2.0.6',
     license: 'MIT',
     lang: 'C#',
+    openSource: true,
     accent: '#4f8cff',
-    cover: '/img/cover-hyc-framework.webp',
+    cta: 'detail',
+    cover: null,
     tech: ['Unity 2022.3', 'DOTS/ECS', 'Burst', 'Blob Asset', 'Addressables'],
     links: {
       demo: null,
@@ -240,118 +271,24 @@ export const PROJECTS = [
     },
   },
   {
-    id: 'graphi-shader',
-    name: 'Graphi 着色器库',
-    nameEn: 'Graphi ShaderLibrary',
-    tagline: '构建在 Unity HDRP 之上的着色器库与编辑器工具集',
-    oneLiner: 'VFX、行星渲染、后处理与运行期性能优化，一整套而不是散装资源。',
-    summary:
-      'Graphi ShaderLibrary 是构建在 Unity 高清渲染管线（HDRP）之上的高度定制着色器库与编辑器工具集，覆盖 VFX、光照、行星渲染、后处理与运行期性能优化。它不是一堆散装资源，而是一套集成系统：硬件优化的着色器集合、可复用 HLSL 函数库、自定义 Shader Graph 节点、运行期组件，以及完整的编辑器分析与调试工具。',
-    category: 'engine',
-    featured: false,
-    status: 'released',
-    year: '2026',
-    version: '1.3.2',
-    license: 'MIT',
-    lang: 'C#',
-    accent: '#ff8a3d',
-    cover: '/img/cover-graphi-shader.webp',
-    tech: ['Unity 2022.3', 'HDRP', 'ShaderLab', 'HLSL', 'Shader Graph'],
-    links: {
-      demo: null,
-      play: null,
-      download: null,
-      source: 'https://github.com/HYClub/Graphi-ShaderLibrary-Unity-HDRP',
-    },
-    detail: {
-      features: [
-        {
-          title: 'VFX / 特效着色器',
-          desc: 'ParticleStandard / ParticleStandardToModel 通用特效粒子着色器（叠加溶解、扭曲、顶点动画、闪烁与挤压，支持 DOTS/ECS 混合渲染），以及 Bullet、Lightning、Fog、Shield、Twist 热扭曲与 RainDrop 雨滴。',
-        },
-        {
-          title: 'Lit 与行星着色器',
-          desc: 'Graphi LitStandard 及 LayeredLit、LitStandardCover / LitIridescenceCover（薄膜干涉与覆盖色染色）、NormalBlend、FastDecal 等表面着色器；行星部分含 Planetary、Moon、Sun、CoronaStorm、大气散射与星环。',
-        },
-        {
-          title: '自定义 Shader Graph 节点',
-          desc: '全部自定义节点集中在 Shader Graph 的 Graphi 标签页下，包含 TriSample、NormalTriSample、FresnelLight、ParallaxOccMapping、TransmissionRefraction、BlendNormal、CoverColor、HSBC、Iridescence 等。',
-        },
-        {
-          title: 'HLSL 函数库',
-          desc: '以 #include 引用的模块化可复用库：Graphi_Color、Graphi-Light、Graphi-Filter、Graphi-Fresnel、Planet、GNoise、GMth、Tex，以及 LitStandard 系列与 FurLit 完整光照 / 毛发表面库。',
-        },
-        {
-          title: 'GraphiMachine 运行期管理',
-          desc: 'HDRP 渲染管理器，启动时自动初始化：SRP batching、按 mip 的纹理流送、动态分辨率，以及画质 / 帧率 / vsync 控制、相机自定义帧设置、光源阴影分辨率覆写与运行期 Volume 参数编辑。',
-        },
-        {
-          title: '编辑器分析与工具',
-          desc: 'Analyzer 可分析场景的着色器变体、粒子最大数量、网格剔除、多材质、空渲染器与顶点 / 三角面；另有 Avatar 与 BlendShape 编辑器、贴图工具链（法线图构建、6 面转 HDRI 立方图、3D 纹理）与 AssetBundle 浏览。',
-        },
-      ],
-      sections: [
-        {
-          heading: '这是什么',
-          body: [
-            'Graphi ShaderLibrary 是一套构建在 Unity HDRP 之上的着色器库与编辑器工具集，仓库包含 LICENSE、双语 README、CHANGELOG、Documentation/、Editor/ 与 Runtime/。',
-            '它的定位是「集成系统」而非散装资源堆：材质、网格、渲染 Pass 全部由脚本在运行期或编辑器程序化创建，因此不依赖打包好的 Prefab 与材质资源。',
-          ],
-        },
-        {
-          heading: '工程是怎么组织的',
-          body: [
-            '着色器层由 Runtime/Shader 下的分类目录组织：Computes、Fx、HLSL、Lit、Planet、ShaderGraphNode、Tool、UI、Unlit、Volumes，另有 FallbackErr.shader 作为回退着色器；HLSL 函数库通过 #include 组合复用，配合 TextureComputes.compute 做动态纹理生成。',
-            '运行期核心是 GraphiMachine：统一管理 SRP batching、基于 mip 的纹理流送、动态分辨率与画质控制，并可通过脚本程序化创建热扭曲与遮挡剪影自定义 Pass；配套 TranslucentBatch 对 ParticleSystem / LineRenderer / TrailRenderer 的动态 DrawCall 做批处理。',
-            '编辑器侧在 ProjectSettings 中提供 Graphi 标签页，并针对 COMPUTE / HLSL / SHADERGRAPH / SHADERSUBGRAPH 建立构建管线；自定义 Toolbar 与统一菜单（Assets/Graphi、GameObject/Graphi、Window/Graphi）承载各类创建与分析入口。',
-          ],
-        },
-        {
-          heading: '怎么用起来',
-          body: [
-            '先确认 Unity 版本，并在 Package Manager 中安装所需依赖（High Definition RP v14.0.9 等）。',
-            '在编辑器点击左上角工具栏的 Graphi，在弹窗中打开「着色库设置」进入 ProjectSettings 的 Graphi 标签页，点击「编译」构建着色器库，再点「一键设置」让库适配当前工程。之后所有材质、网格与着色器 Pass 都会自动创建。',
-            '完整手册见 Documentation/graphi_shader_hdrp.md，版本变更见 CHANGELOG.md。',
-          ],
-        },
-      ],
-      specs: [
-        ['引擎版本', 'Unity 2022.3.17f1c1 或以上'],
-        ['渲染管线', 'High Definition RP v14.0.9'],
-        ['许可证', 'MIT'],
-        ['版本号', '1.3.2（取自 CHANGELOG，仓库无 package.json）'],
-        ['语言构成', 'C# 约 708 KB、ShaderLab 约 486 KB、HLSL 约 310 KB'],
-        ['可选依赖', 'com.unity.entities 1.0.16、FBX Exporter、Visual Scripting'],
-      ],
-      structure: [
-        'Runtime/Shader/ —— 着色器主体（Computes、Fx、HLSL、Lit、Planet、ShaderGraphNode、Tool、UI、Unlit、Volumes）',
-        'Runtime/Components/ —— 运行期组件（GraphiMachine、LOD、RuntimePerformance 等）',
-        'Runtime/Meshs/ —— BMesh / Flat / Lozenge / Shuriken / Tetrahedrons 等程序化网格生成',
-        'Runtime/Volumes/ —— Volume 参数与后处理绑定',
-        'Editor/Shader/ —— 着色器创建与提取工具',
-        'Editor/Ast、Settings、Gameobjs、Files、Common、Utils —— AssetBundle 浏览、缺失脚本查找与 Graphi 设置页',
-        'Documentation/ —— 手册 graphi_shader_hdrp.md 与配图',
-        'README.md / README.zh-CN.md / CHANGELOG.md / LICENSE —— 双语文档与更新日志',
-      ],
-    },
-  },
-  {
     id: 'dsgs',
     name: 'DSH 游戏工作室',
     nameEn: 'DeepSeek Harness Game Studios',
     tagline: '把一次 DSH 会话变成一个完整的游戏开发工作室',
-    oneLiner: '49 个 agent、76 个技能、14 个钩子，一次安装全部就位。',
+    blurb:
+      '把一次 DeepSeek Harness 会话变成一个完整的游戏开发工作室。移植自 Claude Code Game Studios（MIT），把 49 个 agent、76 个技能、13 条规则与 14 个 Node 钩子打包成一次性安装：插件首次加载时装到机器级目录，之后在任意空文件夹开新会话输入 /start 就能初始化并进入引导。移植保真度实测 258 个文件、42,895 行，96% 逐字一致。',
     summary:
       'DeepSeek Harness Game Studios（DSGS）是把 Claude Code Game Studios（CCGS v1.1.2，MIT）移植到 DeepSeek Harness 的插件包。它把 49 个 agent、76 个技能、13 条规则与 14 个 Node 钩子打包成一次性安装：插件首次加载时把框架载荷装到机器级目录，之后在任意空文件夹开新会话输入 /start 就能初始化并进入引导。',
     category: 'engine',
-    featured: false,
     status: 'released',
     year: '2026',
     version: '0.1.1',
     license: 'MIT',
     lang: 'JavaScript',
+    openSource: true,
     accent: '#3ddc97',
-    cover: '/img/cover-dsgs.webp',
+    cta: 'detail',
+    cover: null,
     tech: ['DeepSeek Harness', 'Node.js', 'AI Agents', 'Hooks', 'Plugin'],
     links: {
       demo: null,
@@ -436,18 +373,20 @@ export const PROJECTS = [
     name: '影游开发套件',
     nameEn: 'vgame-toolkit',
     tagline: '把「互动影视游戏」抽象成数据加通用解释器',
-    oneLiner: '编辑器产出数据，播放器解释数据 —— 改剧情不必重新编译打包。',
+    blurb:
+      '一套做互动影视游戏的开发套件：编辑器产出数据，播放器解释数据。设计铁律是零代码、纯鼠标，策划拖拽连线就能搭出内容。框架只保留骨架，节点类型、导出目标、主题与媒体格式全部由插件提供，因此改剧情、换视频、调分支都只是替换文件，不必重新编译打包。',
     summary:
       '一套用于制作互动影视游戏的开发套件，由可视化编辑器、Hub（项目管理器）与播放器组成。核心思路是编辑器产出数据、播放器解释数据：内容以数据形式外置，运行时由通用解释器驱动，改剧情、换视频、调节点路径都只需替换资源，不必重新编译打包。套件的节点类型、导出目标、主题与媒体格式全部由插件提供，框架本身只负责让插件活着。',
     category: 'engine',
-    featured: false,
     status: 'wip',
     year: '2026',
     version: '0.1.0',
     license: null,
     lang: 'TypeScript',
+    openSource: false,
     accent: '#ffcf4d',
-    cover: '/img/cover-vgame-toolkit.webp',
+    cta: 'detail',
+    cover: null,
     tech: ['TypeScript', 'Tauri', 'React', 'pnpm', '插件架构'],
     links: {
       demo: null,
@@ -537,18 +476,20 @@ export const PROJECTS = [
     name: 'SteamCMD 界面',
     nameEn: 'SteamCMD GUI',
     tagline: '给 SteamCMD 配一个能用的 Windows 图形界面',
-    oneLiner: '登录、工坊上传、SteamPipe 正式版发布与实时控制台，一个单文件工具。',
+    blurb:
+      'Windows 下的 SteamCMD 图形界面。登录、创意工坊上传、SteamPipe 正式版发布、Depot 查询与实时控制台全都收进一个界面，并自动生成上传用的 VDF 配置；凭据走 DPAPI 加密保存，整个工具就是一个 57 KB 的单文件脚本。',
     summary:
       'Windows 下的 SteamCMD 图形界面工具，基于 ConPTY 实现终端交互。它把 SteamCMD 那套命令行流程——登录、工坊上传、SteamPipe 正式版发布、Depot 查询——收进一个界面里，并保留实时控制台输出，让上传进度看得见。凭据用 DPAPI 加密保存，支持多账号管理。',
     category: 'tool',
-    featured: false,
     status: 'released',
     year: '2026',
     version: '20260626',
     license: null,
     lang: 'Python',
+    openSource: true,
     accent: '#6fa8c8',
-    cover: '/img/cover-steamcmd-gui.webp',
+    cta: 'detail',
+    cover: null,
     tech: ['Python', 'Tkinter', 'ConPTY', 'pywinpty', 'Windows DPAPI'],
     links: {
       demo: null,
@@ -629,12 +570,16 @@ export function getProject(id) {
   return PROJECTS.find((project) => project.id === id) ?? null
 }
 
-/** 有独立详情页的项目（即没有在线演示、需要站内介绍的那些）。 */
+/** 有独立详情页的项目（即没有在线站点、需要站内介绍的那些）。 */
 export function detailProjects() {
   return PROJECTS.filter((project) => project.detail !== null)
 }
 
-/** 首屏精选。 */
-export function featuredProjects() {
-  return PROJECTS.filter((project) => project.featured)
+/** 首页排布：把 BOARD 的 id 还原成 { ...project, size } 的列表。 */
+export function boardItems() {
+  return BOARD.map(({ id, size }) => {
+    const project = getProject(id)
+    if (!project) throw new Error(`BOARD 里的 "${id}" 在 PROJECTS 中不存在`)
+    return { ...project, size }
+  })
 }

@@ -8,18 +8,84 @@
 
 ## 这个站点是什么
 
-一页式的项目墙：首屏精选 4 个可以直接玩的作品，下面是可按分类筛选的全部项目。
-每个项目给出在线演示 / 下载 / 源码的入口，没有在线演示的走站内详情页。
+一页式的作品墙，4 列排布板：
 
-当前的 9 个项目分三类：
+| 行 | 内容 |
+| --- | --- |
+| 1 · 大卡 | HYC 游戏框架 · DSH 游戏工作室 |
+| 2 · 小卡 | AI 影游平台 · 影游开发套件 · 雪人兄弟 · 深海声呐员 |
+| 3 · 小卡 | 股神异闻录 · SteamCMD 界面 · **更多 → GitHub** |
+
+顺序与大小写在 `src/data/projects.js` 的 `BOARD` 里，改排布不用动 CSS：
+
+```js
+export const BOARD = [
+  { id: 'hyc-framework', size: 'lg' },   // lg = 占 2 列
+  { id: 'dsgs', size: 'lg' },
+  { id: 'vgame', size: 'sm' },           // sm = 占 1 列
+  // …
+]
+```
+
+当前 8 个项目分三类：
 
 | 分类 | 项目 |
 | --- | --- |
 | 游戏 | 深海声呐员、雪人兄弟、股神异闻录、AI 影游平台 |
-| 引擎 / 框架 | HYC 游戏框架、Graphi 着色器库、DSH 游戏工作室、影游开发套件 |
+| 引擎 / 框架 | HYC 游戏框架、DSH 游戏工作室、影游开发套件 |
 | 工具 | SteamCMD 界面 |
 
-**私有或源码未公开的项目也会上墙**，只是不渲染「源码」按钮 —— 按钮在 `links.source` 为 `null` 时根本不生成，而不是渲染成一个灰色的假按钮。
+### 两条内容规矩
+
+**一、按钮标签说实话。** 「能玩的游戏」和「一页介绍」不该共用同一个词。
+每个项目在数据里声明 `cta`，文案表在 `src/js/components.js`：
+
+| `cta` | 角标 | 按钮 | 用在 |
+| --- | --- | --- | --- |
+| `play` | 可以玩 | 在线试玩 | 深海声呐员（有可玩构建） |
+| `demo` | 演示页 | 查看演示 | 雪人兄弟 |
+| `explore` | 可探索 | 进去探索 | 股神异闻录（7 种玩法样式） |
+| `intro` | 项目介绍 | 查看介绍 | AI 影游平台 |
+| `detail` | 站内详情 | 查看详情 | 其余四个 |
+
+**二、没截图就不配图。** 卡片封面只放真实截图（`cover` 字段指向的图）。
+没有截图的项目 `cover` 为 `null`，卡片自动走纯排版样式（`card--plain`）：
+主题色底 + 顶部一道主题色细线，不塞占位图、不画几何图案。
+
+### 开源与否怎么判定
+
+**看项目源码本身是否公开，不看有没有 Pages，也不看有没有公开仓库。**
+
+有公开的演示页仓库（雪人兄弟）、有只放构建产物的分支（股神异闻录）、
+有纯粹的产品介绍页（AI 影游平台）—— 这些都不算开源。
+
+判定写在数据里的 `openSource` 字段，一处声明，两处生效：
+
+- **右上角徽章**：`未开源` / `开源` / `开源 ｜ MIT`
+- **源码按钮**：只有 `openSource` 为 `true` 时才渲染
+
+许可证单独用 `license` 字段。两者都有时徽章渲染成两段式
+（标签 ｜ 值，对应 shields.io 那种 `license | MIT` 的版式），
+比单独挂一个 `MIT` 清楚得多。
+
+### 卡片上出现哪些按钮
+
+由 `src/js/components.js` 里的规则决定，不靠人工逐个项目配：
+
+1. **主按钮**永远是这个项目的 `cta`。
+2. **主按钮没落在项目主页时**（例如 `play` 直接进了游戏本体），
+   再补一个「查看详情」回项目主页 —— 不让人找不到介绍页。
+3. **源码按钮跟着 `openSource` 走**（见上一节）。
+4. **没有下载按钮。** 下载（APK / Windows）属于项目主页的内容，
+   卡片上再用一个按钮重复它没有意义。
+
+**未开源的项目照样上墙**，只是不渲染「源码」按钮 ——
+按钮在 `openSource` 为 `false` 时根本不生成，而不是渲染成一个灰色的假按钮。
+
+### 首屏
+
+`SITE.intro` 两段自我介绍，加到 `SITE` 里即可。
+项目数那类统计放在**页脚**一行小字里，首屏不占版面。
 
 ---
 
@@ -48,16 +114,15 @@ GitHub Pages 只是静态托管，它**不会执行构建**。这个仓库里存
 ├─ index.html                 首页（HTML 只放骨架，内容由 JS 渲染）
 ├─ projects/                  详情页外壳：每个文件只负责 meta 与 <body data-project>
 │  ├─ hyc-framework.html
-│  ├─ graphi-shader.html
 │  ├─ dsgs.html
 │  ├─ vgame-toolkit.html
 │  └─ steamcmd-gui.html
 ├─ src/
-│  ├─ data/projects.js        ★ 唯一数据源（改文案、加项目只动这里）
+│  ├─ data/projects.js        ★ 唯一数据源（改文案、加项目、调排布只动这里）
 │  ├─ js/
-│  │  ├─ components.js        卡片 / 图标 / 按钮等共享渲染片段
-│  │  ├─ home.js              首页：精选、筛选、网格
-│  │  └─ detail.js            详情页渲染器（5 个页面共用）
+│  │  ├─ components.js        卡片 / 图标 / 按钮 / CTA 文案表
+│  │  ├─ home.js              首页：按 BOARD 渲染排布板 + 「更多」磁贴
+│  │  └─ detail.js            详情页渲染器（4 个页面共用）
 │  └─ styles/site.css         设计系统（深色 + 每个项目一个主题色）
 ├─ public/                    原样拷贝进 dist/
 │  ├─ CNAME                   huoyue.club
@@ -89,33 +154,40 @@ npm run check-links    # 检查所有外链、详情页与封面是否齐全
 ## 怎么加一个新项目
 
 1. 在 `src/data/projects.js` 的 `PROJECTS` 数组里加一个对象。至少要有：
-   `id`、`name`、`nameEn`、`tagline`、`oneLiner`、`summary`、`category`、
-   `accent`（主题色）、`cover`、`tech`、`links`。
+   `id`、`name`、`nameEn`、`tagline`、`blurb`、`summary`、`category`、
+   `cta`、`accent`（主题色）、`cover`、`tech`、`links`。
+   **没有真实截图就把 `cover` 写成 `null`**，卡片会自动走纯排版样式。
 
-2. **有在线演示** → `detail: null`，卡片主按钮直接跳 `links.demo`。
-   **没有在线演示** → 写 `detail: { features, sections, specs, structure }`，
+2. 在 `BOARD` 里加一行决定它出现在第几行、多大：`{ id: 'xxx', size: 'lg' }`。
+
+3. **有自己的站点** → `detail: null`，整卡与主按钮都跳 `links.demo`。
+   **没有站点** → 写 `detail: { features, sections, specs, structure }`，
    并在 `projects/<id>.html` 建一个外壳（复制任意一个现有文件，改 meta 与
    `data-project` 即可，正文不用写）。
 
-3. 生成封面：把项目加进 `tools/gen-assets.py` 顶部的 `PROJECTS` 列表，
-   然后 `python tools/gen-assets.py`。有官方截图的项目把截图放到 `.asset-src/`
-   并把文件名填进列表最后一列，否则会自动生成一张几何母题封面。
+4. 把项目加进 `tools/gen-assets.py` 顶部的 `PROJECTS` 列表并跑一次
+   `python tools/gen-assets.py`（只生成分享图；有截图的项目同时生成卡片封面）。
 
-4. `npm run check-links` 确认没有断链，然后提交。
+5. `npm run check-links` 确认没有断链，然后提交。
 
 > 详情页的正文**不写在 HTML 里**，而是由 `detail.js` 从 `projects.js` 渲染。
-> 这样 5 个详情页只有一份模板，不会各自漂移。HTML 文件存在的意义是给每个
+> 这样 4 个详情页只有一份模板，不会各自漂移。HTML 文件存在的意义是给每个
 > 页面独立的 `<title>`、`description` 与 OG 标签，方便分享与收录。
 
 ---
 
 ## 封面与分享图
 
-`tools/gen-assets.py` 生成两样东西：
+`tools/gen-assets.py` 生成两样东西，原则是**不编造图**：
 
-- `public/img/cover-<id>.webp` —— 卡片封面，1200×750。没有官方截图的工程类项目用
-  「程序化几何母题 + 项目主题色」生成，保证整墙卡片视觉统一；有截图的游戏则直接用截图。
-- `public/img/og-<id>.png` 与 `public/img/og.png` —— 1200×630 的分享预览图。
+- `public/img/cover-<id>.webp` —— 卡片封面，1200×750。
+  **只为有真实截图的项目生成**（当前是深海声呐员与股神异闻录）。
+  其余项目没有封面，卡片走 `card--plain` 纯排版样式。
+- `public/img/og-<id>.jpg` 与 `public/img/og.jpg` —— 1200×630 的分享预览图。
+  有截图的用截图压暗后叠标题；没有截图的用一张纯排版分享卡
+  （深色底 + 主题色细线 + 项目名）。分享卡是链接预览的版式，不是给项目编的假截图。
+
+用 JPEG 不用 PNG 是因为截图做底时 PNG 会到 800 KB，JPEG 只要 60 KB。
 
 它是**一次性工具**，不属于构建流程（CI 不会跑它）。项目名与主题色在这个脚本里
 重复声明了一次，改完记得重跑：
@@ -125,6 +197,7 @@ python tools/gen-assets.py     # 需要 Pillow 与 Windows 字体 msyh.ttc
 ```
 
 原始截图放在 `.asset-src/`（已 gitignore），产物提交进 `public/img/`。
+缺图时脚本会直接打印下载地址。
 
 ---
 

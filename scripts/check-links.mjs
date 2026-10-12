@@ -33,7 +33,7 @@ const exists = async (relative) => {
   }
 }
 
-async function checkUrl(url) {
+async function fetchOnce(url) {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), 25_000)
   try {
@@ -57,6 +57,20 @@ async function checkUrl(url) {
   }
 }
 
+/**
+ * 走本地代理时偶发连接抖动，会把好链误报成断链。
+ * 失败就退避重试几次，只有连续失败才算真断。
+ */
+async function checkUrl(url, attempts = 3) {
+  let result = { status: 0, error: 'not attempted', ok: false }
+  for (let i = 0; i < attempts; i += 1) {
+    result = await fetchOnce(url)
+    if (result.ok || (result.status >= 300 && result.status < 400)) return result
+    if (i < attempts - 1) await new Promise((r) => setTimeout(r, 800 * (i + 1)))
+  }
+  return result
+}
+
 /* -------------------------------------------------------- 站内资源检查 */
 info('站内资源')
 
@@ -67,14 +81,22 @@ for (const project of PROJECTS) {
     bad(`${project.id}：缺少详情页 projects/${project.id}.html`)
     internalProblems += 1
   }
-  const cover = project.cover.replace(/^\//, 'public/')
-  if (!(await exists(cover))) {
-    bad(`${project.id}：缺少封面 ${cover}`)
+  // cover 为 null 表示这个项目没有真实截图，卡片走纯排版，不是错误
+  if (project.cover) {
+    const cover = project.cover.replace(/^\//, 'public/')
+    if (!(await exists(cover))) {
+      bad(`${project.id}：缺少封面 ${cover}`)
+      internalProblems += 1
+    }
+  }
+  const ogImage = `public/img/og-${project.id}.jpg`
+  if (!(await exists(ogImage))) {
+    bad(`${project.id}：缺少分享图 ${ogImage}`)
     internalProblems += 1
   }
 }
 
-for (const asset of ['public/img/og.png', 'public/favicon.svg', 'public/404.html']) {
+for (const asset of ['public/img/og.jpg', 'public/favicon.svg', 'public/404.html']) {
   if (!(await exists(asset))) {
     bad(`缺少 ${asset}`)
     internalProblems += 1

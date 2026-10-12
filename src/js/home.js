@@ -1,12 +1,13 @@
 /**
  * home.js —— 首页
  *
- * 首屏「精选」大卡 + 可筛选的全部项目网格，两者都由 projects.js 渲染。
+ * 内容就是一块「排布板」：顺序与大小由 projects.js 的 BOARD 决定，
+ * 末尾自动补一张「更多 → GitHub」的磁贴。没有筛选、没有分类切换。
  */
 
 import '../styles/site.css'
-import { SITE, PROJECTS, CATEGORIES } from '../data/projects.js'
-import { brandMark, cardHtml, escapeHtml } from './components.js'
+import { SITE, PROJECTS, boardItems } from '../data/projects.js'
+import { brandMark, cardHtml, escapeHtml, moreTileHtml } from './components.js'
 
 const $ = (selector, root = document) => root.querySelector(selector)
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)]
@@ -18,86 +19,27 @@ $$('[data-brand-mark]').forEach((el) => {
 
 /* -------------------------------------------------------------- 首屏 */
 function renderHero() {
-  const games = PROJECTS.filter((p) => p.category === 'game')
-  const playable = PROJECTS.filter((p) => p.links.play || p.links.demo)
-  const openSource = PROJECTS.filter((p) => p.links.source)
-
-  const stats = [
-    { value: PROJECTS.length, label: 'Projects' },
-    { value: playable.length, label: 'Live demos' },
-    { value: games.length, label: 'Games' },
-    { value: openSource.length, label: 'Open source' },
-  ]
-
-  $('#hero-stats').innerHTML = stats
-    .map(
-      (stat) =>
-        `<div class="stat"><div class="stat__value">${stat.value}</div>` +
-        `<div class="stat__label">${escapeHtml(stat.label)}</div></div>`,
-    )
-    .join('')
-
-  $('#hero-intro').textContent = SITE.intro
-}
-
-/* -------------------------------------------------------------- 精选 */
-function renderFeatured() {
-  const featured = PROJECTS.filter((p) => p.featured)
-  $('#featured-list').innerHTML = featured
-    .map((project, index) => cardHtml(project, { feature: true, eager: index < 2 }))
+  const intro = Array.isArray(SITE.intro) ? SITE.intro : [SITE.intro]
+  $('#hero-intro').innerHTML = intro
+    .map((line) => `<p>${escapeHtml(line)}</p>`)
     .join('')
 }
 
-/* ------------------------------------------------------------ 筛选 + 网格 */
-function renderGrid() {
-  const counts = { all: PROJECTS.length }
-  for (const project of PROJECTS) {
-    counts[project.category] = (counts[project.category] ?? 0) + 1
-  }
+/* -------------------------------------------------------------- 排布板 */
+function renderBoard() {
+  const html = boardItems()
+    .map((project) => cardHtml(project, { size: project.size }))
+    .join('')
 
-  $('#filters').innerHTML = CATEGORIES.map((category) => {
-    const count = counts[category.id] ?? 0
-    return (
-      `<button class="chip" type="button" data-filter="${category.id}" ` +
-      `aria-pressed="${category.id === 'all'}">` +
-      `${escapeHtml(category.label)}<span class="chip__count">${count}</span></button>`
-    )
-  }).join('')
-
-  const order = ['game', 'engine', 'tool']
-  const sorted = [...PROJECTS].sort((a, b) => {
-    const byCategory = order.indexOf(a.category) - order.indexOf(b.category)
-    if (byCategory !== 0) return byCategory
-    return a.name.localeCompare(b.name, 'zh-Hans-CN')
+  const more = moreTileHtml({
+    href: SITE.github,
+    kicker: '还有更多',
+    title: '去 GitHub 看全部仓库',
+    desc: '公开仓库、私有项目的更新记录，以及还没做成页面的东西都在那边。',
+    meta: '@HYClub',
   })
 
-  $('#grid').innerHTML = sorted.map((project) => cardHtml(project)).join('')
-  $('#empty').hidden = true
-}
-
-function wireFilters() {
-  const filters = $('#filters')
-  const grid = $('#grid')
-  const empty = $('#empty')
-
-  filters.addEventListener('click', (event) => {
-    const chip = event.target.closest('[data-filter]')
-    if (!chip) return
-
-    const wanted = chip.dataset.filter
-    $$('.chip', filters).forEach((el) =>
-      el.setAttribute('aria-pressed', String(el === chip)),
-    )
-
-    let visible = 0
-    $$('.card', grid).forEach((card) => {
-      const match = wanted === 'all' || card.dataset.category === wanted
-      card.hidden = !match
-      if (match) visible += 1
-    })
-
-    empty.hidden = visible > 0
-  })
+  $('#board').innerHTML = html + more
 }
 
 /* --------------------------------------------------------- 顶栏与页脚 */
@@ -118,12 +60,19 @@ function renderFooter() {
   $$('[data-build-time]').forEach((el) => {
     el.textContent = __BUILD_TIME__.slice(0, 10)
   })
+
+  // 项目数这类统计放在页脚一行小字里，首屏不占版面
+  const online = PROJECTS.filter((p) => p.links.demo)
+  const openSource = PROJECTS.filter((p) => p.openSource)
+  $$('[data-footer-stats]').forEach((el) => {
+    el.textContent =
+      `${PROJECTS.length} 个项目 · ${online.length} 个有在线页面 · ` +
+      `${openSource.length} 个开源`
+  })
 }
 
 /* ---------------------------------------------------------------- 启动 */
 renderHero()
-renderFeatured()
-renderGrid()
-wireFilters()
+renderBoard()
 wireTopbar()
 renderFooter()
