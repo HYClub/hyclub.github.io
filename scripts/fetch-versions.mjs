@@ -109,32 +109,46 @@ function compareVersions(a, b) {
   return 0
 }
 
+/** 读仓库里的原始文件。404 单独报清楚，别让它变成 JSON 解析错误。 */
+async function readRaw(repo, path, token) {
+  const result = await request(
+    `/repos/${repo}/contents/${path}`,
+    token,
+    'application/vnd.github.raw',
+  )
+  if (result.notFound) {
+    throw new Error(`${repo}/${path} 读不到（私有仓库需要带 token）`)
+  }
+  return result.text
+}
+
 async function resolveVersion(id, spec, token) {
   if (spec.kind === 'tag') {
-    const { json } = await request(`/repos/${spec.repo}/tags?per_page=30`, token)
-    const names = (json ?? []).map((t) => t.name)
+    const result = await request(`/repos/${spec.repo}/tags?per_page=30`, token)
+    if (result.notFound) {
+      throw new Error(`${spec.repo} 不可读（私有仓库需要带 token）`)
+    }
+    const names = (result.json ?? []).map((t) => t.name)
     if (!names.length) throw new Error('仓库没有 tag')
     const newest = names.sort(compareVersions).at(-1)
     return newest.replace(/^v/i, '')
   }
 
   if (spec.kind === 'json') {
-    const { text } = await request(
-      `/repos/${spec.repo}/contents/${spec.path}`,
-      token,
-      'application/vnd.github.raw',
-    )
-    const version = JSON.parse(text)?.version
+    const text = await readRaw(spec.repo, spec.path, token)
+    let parsed
+    try {
+      parsed = JSON.parse(text)
+    } catch {
+      throw new Error(`${spec.path} 不是合法的 JSON`)
+    }
+    const version = parsed?.version
     if (!version) throw new Error(`${spec.path} 里没有 version 字段`)
     return version
   }
 
   if (spec.kind === 'const') {
-    const { text } = await request(
-      `/repos/${spec.repo}/contents/${spec.path}`,
-      token,
-      'application/vnd.github.raw',
-    )
+    const text = await readRaw(spec.repo, spec.path, token)
     const match = text.match(spec.pattern)
     if (!match) throw new Error(`${spec.path} 里没匹配到版本常量`)
     return match[1]

@@ -1,6 +1,6 @@
 {
   "_note": "由 scripts/fetch-versions.mjs 生成，构建前会自动刷新；不要手改。",
-  "_fetchedAt": "2026-10-17T15:15:33.740Z",
+  "_fetchedAt": "2026-10-17T15:28:33.594Z",
   "versions": {
     "hyc-framework": "2.0.6",
     "dsgs": "0.1.8",
