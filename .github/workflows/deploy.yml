@@ -6,6 +6,10 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  schedule:
+    # 每天刷一次：重新抓各项目的最新版本号，不依赖站点仓库有新提交。
+    # 否则项目发了新 tag，站上还得等到下次改站点才更新。
+    - cron: '17 3 * * *'
   workflow_dispatch:
 
 permissions:
@@ -30,6 +34,17 @@ jobs:
         with:
           node-version: 24
           cache: npm
+
+      # 版本号从各项目自己的 tag / package.json / 源码常量抓，不手写。
+      # 脚本内部已有重试与失败兜底（抓不到就沿用上一次的值），
+      # 所以这里不加 continue-on-error —— 它挂了说明脚本自身有 bug。
+      #
+      # 私有仓库在 CI 里读不到（GITHUB_TOKEN 只覆盖本站仓库），
+      # 那几项会沿用已提交的 versions.json。
+      - name: Refresh project versions
+        run: npm run versions
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Install dependencies
         run: npm ci

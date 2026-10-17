@@ -15,6 +15,14 @@
  *              有内容则渲染 projects/<id>.html 详情页
  */
 
+import versionData from './versions.json' with { type: 'json' }
+
+/**
+ * 构建前由 scripts/fetch-versions.mjs 从各项目的版本源头抓到的真实版本号。
+ * 抓取失败时该文件会保留上一次的值，所以这里不会是空的。
+ */
+const VERSIONS = versionData?.versions ?? {}
+
 export const SITE = {
   name: 'HYClub',
   title: 'HYClub · 项目与作品',
@@ -252,7 +260,7 @@ export const PROJECTS = [
       ],
       specs: [
         ['引擎版本', 'Unity 2022.3 或以上'],
-        ['包版本', '2.0.6'],
+        ['包版本', '{version}'],
         ['许可证', 'MIT'],
         ['核心依赖', 'com.unity.entities 1.0.16、Burst 1.8.16、Collections 2.1.4'],
         ['UI / 输入', 'Addressables 1.21.21、InputSystem 1.7.0、Timeline 1.7.7'],
@@ -282,7 +290,7 @@ export const PROJECTS = [
     category: 'engine',
     status: 'released',
     year: '2026',
-    version: '0.1.1',
+    version: '0.1.8',
     license: 'MIT',
     lang: 'JavaScript',
     openSource: true,
@@ -349,7 +357,7 @@ export const PROJECTS = [
         },
       ],
       specs: [
-        ['插件版本', '0.1.1'],
+        ['插件版本', '{version}'],
         ['许可证', 'MIT（上游版权归 Donchitos，移植层同许可）'],
         ['Node 要求', 'engines.node >= 20'],
         ['上游版本', 'Claude Code Game Studios v1.1.2'],
@@ -449,7 +457,7 @@ export const PROJECTS = [
       ],
       specs: [
         ['仓库结构', 'pnpm monorepo（apps / packages / plugins）'],
-        ['仓库版本', '0.1.0'],
+        ['仓库版本', '{version}'],
         ['应用形态', 'Tauri 桌面程序（Editor / Hub / Player）'],
         ['运行环境', 'Node >= 20、pnpm >= 9'],
         ['插件类别', 'node / exporter / theme / media / player_core / publisher / tool / integration'],
@@ -550,7 +558,7 @@ export const PROJECTS = [
       ],
       specs: [
         ['仓库结构', '单文件脚本（steamcmd_gui.py，约 57 KB）'],
-        ['版本号', '20260626（源码内 __version__ 常量）'],
+        ['版本号', '{version}（源码内 __version__ 常量）'],
         ['运行环境', 'Windows / Python 3.8 或以上'],
         ['界面', '标准库 tkinter + ttk'],
         ['依赖', 'pywinpty（缺失时自动安装）'],
@@ -564,6 +572,18 @@ export const PROJECTS = [
     },
   },
 ]
+
+/**
+ * 版本号覆盖。
+ *
+ * 上面每个项目里的 `version` 只是兜底值；真实版本由 scripts/fetch-versions.mjs
+ * 在构建前从各自的版本源头抓（git tag / package.json / 源码常量），
+ * 写进 versions.json，这里统一覆盖。
+ */
+for (const project of PROJECTS) {
+  const fetched = VERSIONS[project.id]
+  if (fetched) project.version = fetched
+}
 
 /** 按 id 取项目，详情页渲染用。 */
 export function getProject(id) {

@@ -176,6 +176,45 @@ npm run check-links    # 检查所有外链、详情页与封面是否齐全
 
 ---
 
+## 版本号是抓来的，不是手写的
+
+站上显示的版本号来自各项目自己的**版本源头**，由
+`scripts/fetch-versions.mjs` 在构建前抓取，写进 `src/data/versions.json`：
+
+| 来源 | 取法 | 用在 |
+| --- | --- | --- |
+| `tag` | 拉全部 tag，按语义化版本取最大的 | DSH 游戏工作室 |
+| `json` | 读仓库里某个 `package.json` 的 `version` | HYC 游戏框架、影游开发套件 |
+| `const` | 正则提源码里的版本常量 | SteamCMD 界面（`__version__`） |
+
+改版本策略只改脚本顶部的 `SOURCES` 表。
+
+`projects.js` 里每个项目的 `version` 只是**兜底值**，加载时会被 `versions.json`
+覆盖。项目发了新 tag，站上不用手改 —— 下次构建自动就是最新的。
+
+```bash
+npm run versions                          # 手动刷一次
+GITHUB_TOKEN=xxx npm run versions         # 读私有仓库时需要
+```
+
+本地没有 `GITHUB_TOKEN` 时脚本会尝试用 `gh auth token`，所以私有仓库（影游开发套件）
+在本地能抓到；**CI 里抓不到私有仓库**（`GITHUB_TOKEN` 只覆盖本站仓库），
+那几项会沿用已提交的值。
+
+抓取失败不会让构建失败：脚本内部有重试，抓不到就保留上一次的值。
+
+### 为什么不在页面里 fetch GitHub API
+
+匿名 API 每小时只有 60 次限额，访客一多就拉不到，版本号会时有时没。
+构建时抓一次，全站访客看到的都是同一个值，也不增加页面请求。
+
+### 每天自动刷新
+
+`deploy.yml` 除了 `push` 还挂了 `schedule`（每天 03:17 UTC）。
+这样即使站点仓库几个月不动，项目发了新版本，站上第二天也会跟上。
+
+---
+
 ## 封面与分享图
 
 `tools/gen-assets.py` 生成两样东西，原则是**不编造图**：

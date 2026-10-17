@@ -89,11 +89,16 @@ const sectionsHtml = (detail.sections ?? [])
   )
   .join('')
 
+// 规格里的 {version} 占位符换成构建时抓到的真实版本号，
+// 免得规格表里再手写一份版本、跟顶部的版本标签各写各的。
+const VERSION = project.version ?? '—'
+const fillVersion = (text) => String(text).replaceAll('{version}', VERSION)
+
 const specsHtml = (detail.specs ?? [])
   .map(
     ([key, value]) =>
       `<div class="spec"><span class="spec__key">${escapeHtml(key)}</span>` +
-      `<span class="spec__val">${escapeHtml(value)}</span></div>`,
+      `<span class="spec__val">${escapeHtml(fillVersion(value))}</span></div>`,
   )
   .join('')
 
