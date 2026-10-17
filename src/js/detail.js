@@ -8,6 +8,7 @@
 import '../styles/site.css'
 import { SITE, PROJECTS, getProject } from '../data/projects.js'
 import { brandMark, escapeHtml, hexToRgb, icons } from './components.js'
+import { refreshVersion } from './live-version.js'
 
 const $ = (selector, root = document) => root.querySelector(selector)
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)]
@@ -42,12 +43,15 @@ const metaItems = [
   ['年份', project.year],
 ].filter(([, value]) => value)
 
+// 「版本」这一格打上标记，页面加载后由 live-version.js 换成现读的最新值
 const metaHtml = metaItems
-  .map(
-    ([key, value]) =>
-      `<div class="meta__item"><span class="meta__key">${escapeHtml(key)}</span>` +
-      `<span class="meta__val">${escapeHtml(value)}</span></div>`,
-  )
+  .map(([key, value]) => {
+    const val =
+      key === '版本'
+        ? `<span class="meta__val" data-version-value>${escapeHtml(value)}</span>`
+        : `<span class="meta__val">${escapeHtml(value)}</span>`
+    return `<div class="meta__item"><span class="meta__key">${escapeHtml(key)}</span>${val}</div>`
+  })
   .join('')
 
 const linkButtons = []
@@ -89,16 +93,26 @@ const sectionsHtml = (detail.sections ?? [])
   )
   .join('')
 
-// 规格里的 {version} 占位符换成构建时抓到的真实版本号，
+// 规格里的 {version} 占位符换成版本号，并且包一层 data-version-value，
+// 这样页面加载后 live-version.js 能连同顶部那格一起更新。
 // 免得规格表里再手写一份版本、跟顶部的版本标签各写各的。
 const VERSION = project.version ?? '—'
-const fillVersion = (text) => String(text).replaceAll('{version}', VERSION)
+
+function specValueHtml(text) {
+  const [head, ...tail] = String(text).split('{version}')
+  if (!tail.length) return escapeHtml(text)
+  return (
+    escapeHtml(head) +
+    `<span data-version-value>${escapeHtml(VERSION)}</span>` +
+    escapeHtml(tail.join('{version}'))
+  )
+}
 
 const specsHtml = (detail.specs ?? [])
   .map(
     ([key, value]) =>
       `<div class="spec"><span class="spec__key">${escapeHtml(key)}</span>` +
-      `<span class="spec__val">${escapeHtml(fillVersion(value))}</span></div>`,
+      `<span class="spec__val">${specValueHtml(value)}</span></div>`,
   )
   .join('')
 
@@ -193,3 +207,8 @@ $$('[data-footer-years]').forEach((el) => {
 $$('[data-build-time]').forEach((el) => {
   el.textContent = __BUILD_TIME__.slice(0, 10)
 })
+
+/* ------------------------------------------------------------ 版本号 */
+// 页面已经用构建时写入的版本渲染好了，这里再向源站要一次最新值；
+// 读到就替换，读不到就保持原样（不 loading、不报错、不阻塞）。
+refreshVersion(project.id)

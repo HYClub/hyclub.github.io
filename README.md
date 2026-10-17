@@ -176,21 +176,34 @@ npm run check-links    # 检查所有外链、详情页与封面是否齐全
 
 ---
 
-## 版本号是抓来的，不是手写的
+## 版本号是引用来的，不是手写的
 
-站上显示的版本号来自各项目自己的**版本源头**，由
-`scripts/fetch-versions.mjs` 在构建前抓取，写进 `src/data/versions.json`：
+版本号分两层：**构建时写入兜底值 + 页面打开时现读最新值**。没有定时重建。
+
+### 一层：页面直接引用源文件
+
+`src/js/live-version.js` 在详情页加载后，直接从 GitHub 读项目自己的版本文件：
+
+```js
+https://raw.githubusercontent.com/HYClub/<repo>/HEAD/<path>
+```
+
+- `HEAD` 当 ref，自动跟随仓库默认分支，不写死 `main` / `master`
+- raw 域名带 `CORS: *`、**不限流**（GitHub API 匿名只有 60 次/小时，所以不用它）
+- 超时 4 秒；读不到（离线、被墙、仓库私有）就保持页面已渲染的值，不 loading、不报错
+
+源变了，下次有人打开页面就是新的 —— 不需要任何定时任务。
+
+### 二层：构建时写入兜底值
+
+`scripts/fetch-versions.mjs` 在构建时抓一遍，写进 `src/data/versions.json`，
+作为页面首屏立刻显示的值（也就成了现读失败时的兜底）：
 
 | 来源 | 取法 | 用在 |
 | --- | --- | --- |
 | `tag` | 拉全部 tag，按语义化版本取最大的 | DSH 游戏工作室 |
 | `json` | 读仓库里某个 `package.json` 的 `version` | HYC 游戏框架、影游开发套件 |
 | `const` | 正则提源码里的版本常量 | SteamCMD 界面（`__version__`） |
-
-改版本策略只改脚本顶部的 `SOURCES` 表。
-
-`projects.js` 里每个项目的 `version` 只是**兜底值**，加载时会被 `versions.json`
-覆盖。项目发了新 tag，站上不用手改 —— 下次构建自动就是最新的。
 
 ```bash
 npm run versions                          # 手动刷一次
@@ -199,19 +212,18 @@ GITHUB_TOKEN=xxx npm run versions         # 读私有仓库时需要
 
 本地没有 `GITHUB_TOKEN` 时脚本会尝试用 `gh auth token`，所以私有仓库（影游开发套件）
 在本地能抓到；**CI 里抓不到私有仓库**（`GITHUB_TOKEN` 只覆盖本站仓库），
-那几项会沿用已提交的值。
+那几项会沿用已提交的值。私有仓库也没有运行时来源，所以它永远用兜底值。
 
 抓取失败不会让构建失败：脚本内部有重试，抓不到就保留上一次的值。
 
-### 为什么不在页面里 fetch GitHub API
+### 改动版本策略要动两处
 
-匿名 API 每小时只有 60 次限额，访客一多就拉不到，版本号会时有时没。
-构建时抓一次，全站访客看到的都是同一个值，也不增加页面请求。
+| 文件 | 作用 |
+| --- | --- |
+| `scripts/fetch-versions.mjs` 的 `SOURCES` | 构建时的兜底值 |
+| `src/js/live-version.js` 的 `SOURCES` | 页面上的现读值 |
 
-### 每天自动刷新
-
-`deploy.yml` 除了 `push` 还挂了 `schedule`（每天 03:17 UTC）。
-这样即使站点仓库几个月不动，项目发了新版本，站上第二天也会跟上。
+私有仓库只需要前者。
 
 ---
 

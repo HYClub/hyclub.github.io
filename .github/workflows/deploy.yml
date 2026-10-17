@@ -6,10 +6,6 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
-  schedule:
-    # 每天刷一次：重新抓各项目的最新版本号，不依赖站点仓库有新提交。
-    # 否则项目发了新 tag，站上还得等到下次改站点才更新。
-    - cron: '17 3 * * *'
   workflow_dispatch:
 
 permissions:
