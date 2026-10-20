@@ -140,15 +140,13 @@ export function cardHtml(project, { size = 'sm' } = {}) {
       `${primaryIcon(project)}<span>${escapeHtml(cta.label)}</span></a>`,
   ]
 
-  // 主按钮没落在项目主页时（例如「在线试玩」直接进了游戏），
-  // 再给一个回主页的入口，别让人找不到项目本身的介绍页。
-  if (project.links.demo && primaryTarget !== project.links.demo) {
-    actions.push(
-      `<a class="btn" href="${escapeHtml(project.links.demo)}" target="_blank" rel="noopener">` +
-        `${icons.doc}<span>查看详情</span></a>`,
-    )
-  }
-
+  // 「可以玩」的卡片只给一个「在线试玩」。
+  //
+  // 主按钮直接进游戏本体时，项目主页仍然够得着 —— 整张卡片本身就是
+  // 指向 project.links.demo 的链接（见 cardHref）。再挂一个「查看详情」
+  // 会和卡片点击重复，而且只有「试玩地址 ≠ 主页」的项目才有，
+  // 结果同样是「可以玩」的两张卡长出了不一样的按钮数。
+  //
   // 源码按钮跟着 openSource 走，不跟着「有没有 Pages」走 ——
   // 只有项目源码本身公开时才给入口。
   if (project.openSource && project.links.source) {

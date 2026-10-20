@@ -110,12 +110,13 @@ export const PROJECTS = [
     lang: 'JavaScript',
     openSource: false,
     accent: '#8fd8ff',
-    cta: 'demo',
+    cta: 'play',
     cover: null,
     tech: ['JavaScript', 'Canvas', 'CSS'],
     links: {
       demo: 'https://snowbros.huoyue.club/',
-      play: 'https://snowbros.huoyue.club/',
+      // 试玩是 Unity WebGL 构建，放在子路径；根路径是介绍页
+      play: 'https://snowbros.huoyue.club/game/index.html',
       download: null,
       source: null, // 演示页仓库不作为「项目源码」对外；开源状态见 openSource
     },
