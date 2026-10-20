@@ -112,7 +112,7 @@ export const PROJECTS = [
     accent: '#8fd8ff',
     cta: 'play',
     cover: null,
-    tech: ['JavaScript', 'Canvas', 'CSS'],
+    tech: ['Unity', 'C#', 'WebGL'],
     links: {
       demo: 'https://snowbros.huoyue.club/',
       // 试玩是 Unity WebGL 构建，放在子路径；根路径是介绍页
