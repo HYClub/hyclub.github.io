@@ -74,8 +74,31 @@ if (project.openSource && project.links.source) {
       `${icons.github}<span>查看源码</span></a>`,
   )
 }
+// 上架插件市场的条目（目前只有 DSGS 有）
+if (project.links.marketplace) {
+  linkButtons.push(
+    `<a class="btn" href="${escapeHtml(project.links.marketplace)}" target="_blank" rel="noopener">` +
+      `${icons.doc}<span>插件市场条目</span></a>`,
+  )
+}
 
 const detail = project.detail ?? {}
+
+// 「怎么装」：插件最重要的动作是装，单独一块，不当正文读
+const installHtml = detail.install
+  ? `<section class="install">
+       <p class="install__note">${escapeHtml(detail.install.note)}</p>
+       ${(detail.install.rows ?? [])
+         .map(
+           (row) =>
+             `<div class="install__row">` +
+             `<span class="install__label">${escapeHtml(row.label)}</span>` +
+             `<code class="install__code">${escapeHtml(row.value)}</code>` +
+             `</div>`,
+         )
+         .join('')}
+     </section>`
+  : ''
 
 const featuresHtml = (detail.features ?? [])
   .map(
@@ -152,6 +175,7 @@ $('#main').innerHTML = `
       <div class="meta">${metaHtml}</div>
       ${starPillHtml(project) ? `<div class="detail-stars">${starPillHtml(project)}</div>` : ''}
       <div class="detail-links">${linkButtons.join('')}</div>
+      ${installHtml}
       ${
         project.cover
           ? `<figure class="detail-cover">

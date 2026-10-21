@@ -999,6 +999,51 @@ button {
   margin-top: 32px;
 }
 
+/* 「怎么装」：插件详情页里最实用的一块，代码用等宽字体 */
+.install {
+  margin-top: 26px;
+  padding: 20px 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.022);
+}
+
+.install__note {
+  margin-bottom: 14px;
+  color: var(--text-dim);
+  font-size: 0.92rem;
+}
+
+.install__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 16px;
+  padding: 9px 0;
+}
+
+.install__row + .install__row {
+  border-top: 1px solid var(--line);
+}
+
+.install__label {
+  flex: none;
+  min-width: 62px;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+
+.install__code {
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: rgb(var(--accent-rgb));
+  word-break: break-all;
+}
+
 /* 小标题 */
 .block {
   padding: 46px 0;

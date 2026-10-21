@@ -285,9 +285,9 @@ export const PROJECTS = [
     nameEn: 'DSGS',
     tagline: '把一次 DSH 会话变成一个完整的游戏开发工作室',
     blurb:
-      '把一次 DeepSeek Harness 会话变成一个完整的游戏开发工作室。移植自 Claude Code Game Studios（MIT），把 49 个 agent、76 个技能、13 条规则与 14 个 Node 钩子打包成一次性安装：插件首次加载时装到机器级目录，之后在任意空文件夹开新会话输入 /start 就能初始化并进入引导。移植保真度实测 258 个文件、42,895 行，96% 逐字一致。',
+      '把一次 DeepSeek Harness 会话变成一个完整的游戏开发工作室。移植自 Claude Code Game Studios（MIT），把 49 个 agent、76 个技能、13 条规则与 14 个 Node 钩子打包成一次性安装。已收录进 DSH 插件市场，一条命令装完重启就能用。',
     summary:
-      'DeepSeek Harness Game Studios（DSGS）是把 Claude Code Game Studios（CCGS v1.1.2，MIT）移植到 DeepSeek Harness 的插件包。它把 49 个 agent、76 个技能、13 条规则与 14 个 Node 钩子打包成一次性安装：插件首次加载时把框架载荷装到机器级目录，之后在任意空文件夹开新会话输入 /start 就能初始化并进入引导。',
+      'DeepSeek Harness Game Studios（DSGS）是把 Claude Code Game Studios（CCGS v1.1.2，MIT）移植到 DeepSeek Harness 的插件包。它把 49 个 agent、76 个技能、13 条规则与 14 个 Node 钩子打包成一次性安装：插件首次加载时把框架载荷装到机器级目录，之后在任意空文件夹开新会话输入 /start 就能初始化并进入引导。已收录进 awesome-dsh-plugin 插件列表。',
     category: 'engine',
     status: 'released',
     year: '2026',
@@ -306,8 +306,19 @@ export const PROJECTS = [
       play: null,
       download: null,
       source: 'https://github.com/HYClub/deepseek-harness-game-studios',
+      // 已收录进 awesome-dsh-plugin，PR #7294 于 2026-10-17 合并
+      marketplace:
+        'https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/blob/main/data/plugins/HYClub__deepseek-harness-game-studios.yml',
     },
     detail: {
+      /** 插件最重要的动作是「怎么装」，单独给一块，不混在正文里 */
+      install: {
+        note: '两种装法，装完都要重启 dsh web。已经收录进 DSH 插件市场，装法和市面上的插件一致。',
+        rows: [
+          { label: '命令行', value: 'dsh plugin --profile web add https://github.com/HYClub/deepseek-harness-game-studios' },
+          { label: '图形界面', value: 'Plugins → Add plugin → 粘贴上面的仓库地址 → Install' },
+        ],
+      },
       features: [
         {
           title: 'CCGS 全量移植',
@@ -358,6 +369,13 @@ export const PROJECTS = [
             '仓库提供了独立校验脚本，用来核对技能、代理、规则与钩子的数量，以及移植保真度。',
           ],
         },
+        {
+          heading: '已收录进 DSH 插件市场',
+          body: [
+            '2026-10-17 收录进 awesome-dsh-plugin（DSH 的插件列表，PR #7294），分类 agi。收录条目里写的规模是 76 个技能、49 个代理与钩子桥。',
+            '这意味着装法跟市面上其它 DSH 插件完全一致：不用 clone、不用手动铺目录，一条 dsh plugin 命令或界面上点两下即可，卸载也走同一套。',
+          ],
+        },
       ],
       specs: [
         ['插件版本', '{version}'],
@@ -366,6 +384,7 @@ export const PROJECTS = [
         ['上游版本', 'Claude Code Game Studios v1.1.2'],
         ['规模', '74 个上游技能 + 49 个代理 + 13 条规则 + 14 个 Node 钩子'],
         ['保真度', '258 个文件 / 42,895 行，96.0% 逐字一致'],
+        ['插件市场', '已收录 · awesome-dsh-plugin（分类 agi）'],
       ],
       structure: [
         'payload/ —— 插件安装的框架载荷',
