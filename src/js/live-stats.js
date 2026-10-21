@@ -1,14 +1,17 @@
 /**
- * live-stats.js —— 卡片上的实时仓库数据
+ * live-stats.js —— 卡片 / 详情页上的实时仓库数据
  *
  * 目前只有星数。GitHub 的 /repos/{owner}/{repo} 匿名可读、带 CORS，
- * 页面加载后直接拉一次，拉到就把星标插进卡片右上角。
+ * 页面加载后按 [data-stars-for] 标记逐个拉一次，拉到就填上并显示。
  *
- * 拉不到就不显示 —— 不 loading、不报错、不留空位。
+ * 占位是隐藏的空胶囊，所以：
+ *   - 拿到数据 → 出现；读不到或 0 星 → 永远不出现，不留空位、不报错
+ *   - 同一页面里同一个仓库只请求一次（首页卡片和详情页可能同时出现）
+ * 
  * 结果缓存在 localStorage 10 分钟，避免同一访客反复刷新把匿名额度（60 次/小时）用光。
  *
  * 克隆数不在这里：GitHub 的 /traffic/clones 需要仓库管理权限，
- * 匿名调用返回 401，静态站点在浏览器里读不到。详见 README。
+ * 匿名调用返回 401，静态站点的访客在浏览器里读不到。详见 README。
  */
 
 const CACHE_KEY = 'hyclub:repo-stars:v1'
@@ -49,42 +52,39 @@ async function fetchStars(repo) {
   }
 }
 
-function starPill(count) {
-  const pill = document.createElement('span')
-  pill.className = 'pill pill--stars'
-  pill.title = `GitHub 星标 ${count}`
-  pill.textContent = `★ ${count}`
-  return pill
-}
-
 export async function attachStars() {
-  const cards = [...document.querySelectorAll('[data-repo]')]
-  if (!cards.length) return
+  const slots = [...document.querySelectorAll('[data-stars-for]')]
+  if (!slots.length) return
 
   const cache = readCache()
   const now = Date.now()
+  const repos = [...new Set(slots.map((el) => el.dataset.starsFor).filter(Boolean))]
+
+  const counts = new Map()
   let dirty = false
 
   await Promise.all(
-    cards.map(async (card) => {
-      const repo = card.dataset.repo
-      const slot = card.querySelector('.card__badges-right')
-      if (!repo || !slot) return
-
+    repos.map(async (repo) => {
       const cached = cache[repo]
-      let stars = cached && now - cached.at < CACHE_TTL ? cached.stars : null
-
-      if (stars === null) {
-        stars = await fetchStars(repo)
-        if (stars === null) return // 读不到就什么都不显示
-        cache[repo] = { stars, at: now }
-        dirty = true
+      if (cached && now - cached.at < CACHE_TTL) {
+        counts.set(repo, cached.stars)
+        return
       }
-
-      if (stars <= 0) return // 0 星不占位置
-      slot.prepend(starPill(stars))
+      const stars = await fetchStars(repo)
+      if (stars === null) return // 读不到就什么都不显示
+      counts.set(repo, stars)
+      cache[repo] = { stars, at: now }
+      dirty = true
     }),
   )
 
   if (dirty) writeCache(cache)
+
+  for (const slot of slots) {
+    const stars = counts.get(slot.dataset.starsFor)
+    if (typeof stars !== 'number' || stars <= 0) continue
+    slot.textContent = `★ ${stars}`
+    slot.title = `GitHub 星标 ${stars}`
+    slot.hidden = false
+  }
 }

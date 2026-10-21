@@ -116,11 +116,11 @@ export function opennessBadgeHtml(project) {
 }
 
 /**
- * 从 links.source 里取出 "owner/repo"，供卡片标记 data-repo。
- * 只有 showStars 打开的项目才标记 —— 星数是页面加载后实时拉的，
- * 每张标记的卡片都会产生一次 GitHub API 请求，没必要为 0 星的项目花。
+ * 从 links.source 里取出 "owner/repo"，供星标使用。
+ * 只有 showStars 打开的项目才返回 —— 星数是页面加载后实时拉的，
+ * 每处标记都会产生一次 GitHub API 请求，没必要为 0 星的项目花。
  */
-function starredRepoSlug(project) {
+export function starredRepoSlug(project) {
   if (!project.showStars || !project.links.source) return null
   try {
     const url = new URL(project.links.source)
@@ -132,6 +132,17 @@ function starredRepoSlug(project) {
   }
 }
 
+/**
+ * 星标占位。渲染时是空的并且 hidden —— 拉到数据才由 live-stats.js 填上并显示，
+ * 读不到或 0 星就永远不出现，不占位置也不会让旁边的徽章移位。
+ * 首页卡片和详情页共用这一个片段。
+ */
+export function starPillHtml(project) {
+  const slug = starredRepoSlug(project)
+  if (!slug) return ''
+  return `<span class="pill pill--stars" data-stars-for="${escapeHtml(slug)}" hidden></span>`
+}
+
 /* -------------------------------------------------------------- 卡片 */
 export function cardHtml(project, { size = 'sm' } = {}) {
   const cta = ctaOf(project)
@@ -140,14 +151,12 @@ export function cardHtml(project, { size = 'sm' } = {}) {
   const tagLimit = size === 'lg' ? 5 : 3
   const hasCover = Boolean(project.cover)
 
-  // 右侧单独包一层：星标是页面加载后才插进来的，
-  // 放进这个容器里就只会向左延伸，不会把「开源 | MIT」推出原位。
+  // 右侧单独包一层：星标是后加的，放进这个容器里只会向左长，
+  // 不会把「开源 | MIT」推出原位。
   const badgesInner =
     `<span class="pill ${cta.accent ? 'pill--accent' : ''} ${cta.live ? 'pill--live' : ''}">` +
     `<span class="pill__dot"></span>${escapeHtml(cta.badge)}</span>` +
-    `<span class="card__badges-right">${opennessBadgeHtml(project)}</span>`
-
-  const repoSlug = starredRepoSlug(project)
+    `<span class="card__badges-right">${starPillHtml(project)}${opennessBadgeHtml(project)}</span>`
 
   const tags = (project.tech ?? [])
     .slice(0, tagLimit)
@@ -204,8 +213,7 @@ export function cardHtml(project, { size = 'sm' } = {}) {
 
   return (
     `<article class="card card--${size}${hasCover ? '' : ' card--plain'}" ` +
-    `style="${accentStyle(project)}" data-id="${escapeHtml(project.id)}"` +
-    `${repoSlug ? ` data-repo="${escapeHtml(repoSlug)}"` : ''}>` +
+    `style="${accentStyle(project)}" data-id="${escapeHtml(project.id)}">` +
     stretch +
     media +
     body +

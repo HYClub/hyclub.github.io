@@ -7,8 +7,9 @@
 
 import '../styles/site.css'
 import { SITE, PROJECTS, getProject } from '../data/projects.js'
-import { brandMark, escapeHtml, hexToRgb, icons } from './components.js'
+import { brandMark, escapeHtml, hexToRgb, icons, starPillHtml } from './components.js'
 import { refreshVersion } from './live-version.js'
+import { attachStars } from './live-stats.js'
 
 const $ = (selector, root = document) => root.querySelector(selector)
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)]
@@ -149,6 +150,7 @@ $('#main').innerHTML = `
       <p class="detail-hero__tagline">${escapeHtml(project.tagline)}</p>
       <p class="detail-hero__summary">${escapeHtml(project.summary)}</p>
       <div class="meta">${metaHtml}</div>
+      ${starPillHtml(project) ? `<div class="detail-stars">${starPillHtml(project)}</div>` : ''}
       <div class="detail-links">${linkButtons.join('')}</div>
       ${
         project.cover
@@ -212,3 +214,7 @@ $$('[data-build-time]').forEach((el) => {
 // 页面已经用构建时写入的版本渲染好了，这里再向源站要一次最新值；
 // 读到就替换，读不到就保持原样（不 loading、不报错、不阻塞）。
 refreshVersion(project.id)
+
+/* -------------------------------------------------------------- 星标 */
+// 同理：读不到就不显示，不影响页面其余部分。
+attachStars()
