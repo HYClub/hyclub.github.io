@@ -94,6 +94,10 @@ const installHtml = detail.install
              `<div class="install__row">` +
              `<span class="install__label">${escapeHtml(row.label)}</span>` +
              `<code class="install__code">${escapeHtml(row.value)}</code>` +
+             (row.copy
+               ? `<button class="install__copy" type="button" data-copy` +
+                 ` aria-label="复制${escapeHtml(row.label)}">复制</button>`
+               : '') +
              `</div>`,
          )
          .join('')}
@@ -233,6 +237,63 @@ $$('[data-footer-years]').forEach((el) => {
 $$('[data-build-time]').forEach((el) => {
   el.textContent = __BUILD_TIME__.slice(0, 10)
 })
+
+/* ------------------------------------------------------------ 复制命令 */
+const COPY_DONE = '已复制'
+const COPY_FAIL = '复制失败'
+const COPY_IDLE = '复制'
+
+/** 优先用剪贴板 API；不可用（非安全上下文 / 被拒）时退回 execCommand。 */
+async function copyText(text) {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text)
+      return true
+    }
+  } catch {
+    // 落到下面的兜底
+  }
+  try {
+    const area = document.createElement('textarea')
+    area.value = text
+    area.setAttribute('readonly', '')
+    area.style.cssText = 'position:fixed;top:-9999px;opacity:0'
+    document.body.appendChild(area)
+    area.select()
+    const ok = document.execCommand('copy')
+    document.body.removeChild(area)
+    return ok
+  } catch {
+    return false
+  }
+}
+
+let copyResetTimer = 0
+
+function wireCopyButtons() {
+  const install = $('.install')
+  if (!install) return
+
+  install.addEventListener('click', async (event) => {
+    const button = event.target.closest('[data-copy]')
+    if (!button) return
+
+    const code = button.closest('.install__row')?.querySelector('.install__code')
+    if (!code) return
+
+    const ok = await copyText(code.textContent.trim())
+    button.textContent = ok ? COPY_DONE : COPY_FAIL
+    button.classList.toggle('is-copied', ok)
+
+    clearTimeout(copyResetTimer)
+    copyResetTimer = setTimeout(() => {
+      button.textContent = COPY_IDLE
+      button.classList.remove('is-copied')
+    }, 1500)
+  })
+}
+
+wireCopyButtons()
 
 /* ------------------------------------------------------------ 版本号 */
 // 页面已经用构建时写入的版本渲染好了，这里再向源站要一次最新值；

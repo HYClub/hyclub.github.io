@@ -1037,11 +1037,42 @@ button {
 }
 
 .install__code {
+  flex: 1 1 auto;
+  min-width: 0;
   font-family: var(--font-mono);
   font-size: 0.84rem;
   line-height: 1.6;
   color: rgb(var(--accent-rgb));
   word-break: break-all;
+}
+
+/* 复制按钮：只在需要整段复制的行出现，成功后短暂变主题色 */
+.install__copy {
+  flex: none;
+  margin-left: auto;
+  padding: 4px 11px;
+  border: 1px solid var(--line-hi);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: color 0.18s var(--ease), background 0.18s var(--ease),
+    border-color 0.18s var(--ease);
+}
+
+.install__copy:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.install__copy.is-copied {
+  color: rgb(var(--accent-rgb));
+  background: rgba(var(--accent-rgb), 0.14);
+  border-color: rgba(var(--accent-rgb), 0.5);
 }
 
 /* 小标题 */

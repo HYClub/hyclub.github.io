@@ -315,7 +315,12 @@ export const PROJECTS = [
       install: {
         note: '两种装法，装完都要重启 dsh web。已经收录进 DSH 插件市场，装法和市面上的插件一致。',
         rows: [
-          { label: '命令行', value: 'dsh plugin --profile web add https://github.com/HYClub/deepseek-harness-game-studios' },
+          {
+            label: '命令行',
+            value:
+              'dsh plugin --profile web add https://github.com/HYClub/deepseek-harness-game-studios',
+            copy: true, // 只有真正需要整段复制的那行才给复制按钮
+          },
           { label: '图形界面', value: 'Plugins → Add plugin → 粘贴上面的仓库地址 → Install' },
         ],
       },
