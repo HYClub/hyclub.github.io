@@ -411,9 +411,11 @@ button {
   right: 14px;
   z-index: 1;
   display: flex;
+  /* 徽章最多四个（状态 / 星标 / 已收录 / 开源|许可证），窄卡上允许换行 */
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px 10px;
 }
 
 /* 没有截图的卡片：标签回到正文流里，不再绝对定位 */
@@ -436,6 +438,13 @@ button {
   color: #f0c674;
   border-color: rgba(240, 198, 116, 0.38);
   background: rgba(240, 198, 116, 0.12);
+}
+
+/* 已收录插件市场：中性色 + 虚线边，跟「开源 / 星标」都不抢 */
+.pill--market {
+  color: var(--text-dim);
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.24);
 }
 
 /* 详情页的星标：跟在那排「语言 / 版本 / 许可证 / 年份」下面 */

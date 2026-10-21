@@ -151,12 +151,18 @@ export function cardHtml(project, { size = 'sm' } = {}) {
   const tagLimit = size === 'lg' ? 5 : 3
   const hasCover = Boolean(project.cover)
 
+  // 上架插件市场的标记：只在 links.marketplace 存在时出现，
+  // 和「开源 | MIT」放一起，因为这三者回答的是同一类问题（这仓库是什么状态）。
+  const marketPill = project.links?.marketplace
+    ? `<span class="pill pill--market" title="已收录进 awesome-dsh-plugin（DSH 插件市场）">✓ 已收录</span>`
+    : ''
+
   // 右侧单独包一层：星标是后加的，放进这个容器里只会向左长，
   // 不会把「开源 | MIT」推出原位。
   const badgesInner =
     `<span class="pill ${cta.accent ? 'pill--accent' : ''} ${cta.live ? 'pill--live' : ''}">` +
     `<span class="pill__dot"></span>${escapeHtml(cta.badge)}</span>` +
-    `<span class="card__badges-right">${starPillHtml(project)}${opennessBadgeHtml(project)}</span>`
+    `<span class="card__badges-right">${starPillHtml(project)}${marketPill}${opennessBadgeHtml(project)}</span>`
 
   const tags = (project.tech ?? [])
     .slice(0, tagLimit)
