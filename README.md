@@ -12,7 +12,7 @@
 
 | 行 | 内容 |
 | --- | --- |
-| 1 · 大卡 | HYC 游戏框架 · DSH 游戏工作室 |
+| 1 · 大卡 | HYC 游戏框架 · DeepSeek Harness Game Studios |
 | 2 · 小卡 | AI 影游平台 · 影游开发套件 · 雪人兄弟 · 深海声呐员 |
 | 3 · 小卡 | 股神异闻录 · SteamCMD 界面 · **更多 → GitHub** |
 
@@ -32,7 +32,7 @@ export const BOARD = [
 | 分类 | 项目 |
 | --- | --- |
 | 游戏 | 深海声呐员、雪人兄弟、股神异闻录、AI 影游平台 |
-| 引擎 / 框架 | HYC 游戏框架、DSH 游戏工作室、影游开发套件 |
+| 引擎 / 框架 | HYC 游戏框架、DeepSeek Harness Game Studios、影游开发套件 |
 | 工具 | SteamCMD 界面 |
 
 ### 两条内容规矩
@@ -202,7 +202,7 @@ https://raw.githubusercontent.com/HYClub/<repo>/HEAD/<path>
 
 | 来源 | 取法 | 用在 |
 | --- | --- | --- |
-| `tag` | 拉全部 tag，按语义化版本取最大的 | DSH 游戏工作室 |
+| `tag` | 拉全部 tag，按语义化版本取最大的 | DeepSeek Harness Game Studios |
 | `json` | 读仓库里某个 `package.json` 的 `version` | HYC 游戏框架、影游开发套件 |
 | `const` | 正则提源码里的版本常量 | SteamCMD 界面（`__version__`） |
 
@@ -225,6 +225,35 @@ GITHUB_TOKEN=xxx npm run versions         # 读私有仓库时需要
 | `src/js/live-version.js` 的 `SOURCES` | 页面上的现读值 |
 
 私有仓库只需要前者。
+
+---
+
+## 卡片上的实时数据：星数能拿，克隆数拿不到
+
+卡片右上角可以显示 GitHub 星数（当前只有 DSGS 打开了）。
+在项目数据里写 `showStars: true`，`src/js/live-stats.js` 会在页面加载后
+从 `https://api.github.com/repos/{owner}/{repo}` 读一次并插进卡片。
+
+- 匿名可读、带 `CORS: *`，不需要 token
+- 结果缓存在 localStorage 10 分钟，避免反复刷新把匿名额度（60 次/小时）用光
+- 读不到就**什么都不显示**：不 loading、不报错、不留空位
+- 0 星不占位置
+- 星标放在 `.card__badges-right` 容器里，向左延伸，不会把「开源 ｜ MIT」挤出原位
+
+### 克隆数为什么不行
+
+`/traffic/clones` 需要仓库的 push 权限，匿名调用直接返回：
+
+```
+401 { "message": "Requires authentication" }
+```
+
+静态站点的访客在浏览器里没有 token，所以**读不到**。
+而且 GitHub 只保留 **最近 14 天** 的流量，没有「累计总克隆数」这个数。
+
+要显示的话只有一条路：用带该仓库权限的 PAT 在**构建时**抓，写进数据当快照。
+但那样它不会实时更新，站点不重新构建就一直停在旧值 —— 也就是我们刚从版本号上
+搬走的那种「快照」。所以默认没做。
 
 ---
 

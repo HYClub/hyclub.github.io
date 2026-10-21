@@ -281,8 +281,8 @@ export const PROJECTS = [
   },
   {
     id: 'dsgs',
-    name: 'DSH 游戏工作室',
-    nameEn: 'DeepSeek Harness Game Studios',
+    name: 'DeepSeek Harness Game Studios',
+    nameEn: 'DSGS',
     tagline: '把一次 DSH 会话变成一个完整的游戏开发工作室',
     blurb:
       '把一次 DeepSeek Harness 会话变成一个完整的游戏开发工作室。移植自 Claude Code Game Studios（MIT），把 49 个 agent、76 个技能、13 条规则与 14 个 Node 钩子打包成一次性安装：插件首次加载时装到机器级目录，之后在任意空文件夹开新会话输入 /start 就能初始化并进入引导。移植保真度实测 258 个文件、42,895 行，96% 逐字一致。',
@@ -295,6 +295,8 @@ export const PROJECTS = [
     license: 'MIT',
     lang: 'JavaScript',
     openSource: true,
+    /** 卡片右上角实时显示 GitHub 星数（页面加载后从 GitHub API 读） */
+    showStars: true,
     accent: '#3ddc97',
     cta: 'detail',
     cover: null,

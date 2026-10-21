@@ -51,7 +51,7 @@ PROJECTS = [
     ("stock-persona", "股神异闻录", "Stock Persona", "#e0455f", "sp-shot6.jpg"),
     ("vgame", "AI 影游平台", "vgame", "#a06bff", None),
     ("hyc-framework", "HYC 游戏框架", "HYC Framework", "#4f8cff", None),
-    ("dsgs", "DSH 游戏工作室", "DSH Game Studios", "#3ddc97", None),
+    ("dsgs", "DeepSeek Harness Game Studios", "DSGS", "#3ddc97", None),
     ("vgame-toolkit", "影游开发套件", "vgame-toolkit", "#ffcf4d", None),
     ("steamcmd-gui", "SteamCMD 界面", "SteamCMD GUI", "#6fa8c8", None),
 ]

@@ -8,6 +8,7 @@
 import '../styles/site.css'
 import { SITE, PROJECTS, boardItems } from '../data/projects.js'
 import { brandMark, cardHtml, escapeHtml, moreTileHtml } from './components.js'
+import { attachStars } from './live-stats.js'
 
 const $ = (selector, root = document) => root.querySelector(selector)
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)]
@@ -76,3 +77,6 @@ renderHero()
 renderBoard()
 wireTopbar()
 renderFooter()
+
+// 星标是后补的，放在最后；读不到就什么都不发生
+attachStars()
