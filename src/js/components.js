@@ -62,6 +62,7 @@ export const accentStyle = (project) =>
 export const CTA = {
   play: { label: '在线试玩', badge: '可以玩', accent: true, live: true },
   demo: { label: '查看演示', badge: '演示页', accent: true, live: false },
+  site: { label: '访问官网', badge: '官网', accent: true, live: false },
   explore: { label: '进去探索', badge: '可探索', accent: true, live: false },
   intro: { label: '查看介绍', badge: '项目介绍', accent: true, live: false },
   detail: { label: '查看详情', badge: '站内详情', accent: false, live: false },

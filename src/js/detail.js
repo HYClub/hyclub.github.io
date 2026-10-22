@@ -63,9 +63,11 @@ if (project.links.play) {
   )
 }
 if (project.links.demo) {
+  // 官网类项目说「访问官网」，其余仍是「打开演示页」
+  const label = project.cta === 'site' ? '访问官网' : '打开演示页'
   linkButtons.push(
     `<a class="btn btn--primary" href="${escapeHtml(project.links.demo)}" target="_blank" rel="noopener">` +
-      `${icons.external}<span>打开演示页</span></a>`,
+      `${icons.external}<span>${label}</span></a>`,
   )
 }
 if (project.openSource && project.links.source) {

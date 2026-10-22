@@ -199,11 +199,14 @@ export const PROJECTS = [
     lang: 'C#',
     openSource: true,
     accent: '#4f8cff',
-    cta: 'detail',
+    cta: 'site',
     cover: null,
     tech: ['Unity 2022.3', 'DOTS/ECS', 'Burst', 'Blob Asset', 'Addressables'],
     links: {
-      demo: null,
+      // 框架自己的官网（hyc-framework 仓库的 /docs 目录，走 GitHub Pages）。
+      // 暂时只能用 http：该域名的 TLS 证书还没签发，https 会报证书错误。
+      // 证书下来后把这里改成 https:// 即可。
+      demo: 'http://framework.game.huoyue.club/',
       play: null,
       download: null,
       source: 'https://github.com/HYClub/hyc-framework',
