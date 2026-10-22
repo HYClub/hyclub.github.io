@@ -447,6 +447,29 @@ button {
   border-color: rgba(255, 255, 255, 0.24);
 }
 
+/* 卡片上的醒目状态提示（「持续开发中 · 非稳定版本」这类）。
+   用警示橙而不是主题色：它是提醒，不是装饰，也不该和主题色混在一起。 */
+.card__notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 9px 12px;
+  border: 1px solid rgba(255, 178, 74, 0.38);
+  border-radius: 8px;
+  background: rgba(255, 178, 74, 0.1);
+  color: #ffb24a;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.card__notice svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+}
+
 /* 详情页的星标：跟在那排「语言 / 版本 / 许可证 / 年份」下面 */
 .detail-stars {
   display: flex;

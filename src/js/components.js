@@ -26,6 +26,10 @@ export const icons = {
     '<path d="M14 3H7a1.5 1.5 0 0 0-1.5 1.5v15A1.5 1.5 0 0 0 7 21h10a1.5 1.5 0 0 0 1.5-1.5V7.5Z"/>' +
       '<path d="M14 3v4.5h4.5"/><path d="M9 13h6"/><path d="M9 17h4"/>',
   ),
+  /** 醒目的状态提示用（“持续开发中”这类） */
+  warn: svg(
+    '<path d="M12 4.5 3.5 19.5h17L12 4.5Z"/><path d="M12 10v4"/><path d="M12 17h.01"/>',
+  ),
 }
 
 /* --------------------------------------------------------- 小工具 */
@@ -209,9 +213,16 @@ export function cardHtml(project, { size = 'sm' } = {}) {
       `</div>`
     : ''
 
+  // 醒目状态提示（例如「持续开发中，非稳定版本」）。
+  // 放在角标和下文的标题之间 —— 扫一眼就会看到，不用读完整段介绍。
+  const noticeHtml = project.notice
+    ? `<p class="card__notice">${icons.warn}<span>${escapeHtml(project.notice)}</span></p>`
+    : ''
+
   const body =
     `<div class="card__body">` +
     (hasCover ? '' : `<div class="card__badges card__badges--static">${badgesInner}</div>`) +
+    noticeHtml +
     `<h3 class="card__title">${escapeHtml(project.name)}` +
     `<span class="card__title-en">${escapeHtml(project.nameEn)}</span></h3>` +
     `<p class="card__line">${escapeHtml(project.blurb)}</p>` +

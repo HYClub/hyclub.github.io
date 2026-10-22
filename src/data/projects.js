@@ -200,6 +200,7 @@ export const PROJECTS = [
     openSource: true,
     accent: '#4f8cff',
     cta: 'site',
+    notice: '持续开发中 · 当前为非稳定版本，如需抢先体验请通过 GitHub Issues 联系作者',
     cover: null,
     tech: ['Unity 2022.3', 'DOTS/ECS', 'Burst', 'Blob Asset', 'Addressables'],
     links: {
