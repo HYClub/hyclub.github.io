@@ -56,9 +56,10 @@ export const BOARD = [
   { id: 'vgame-toolkit', size: 'sm' },
   { id: 'snow-bros', size: 'sm' },
   { id: 'deep-sea-sonar', size: 'sm' },
-  // 第三行 · 两个小卡 + 末尾的「更多」
+  // 第三行 · 三个小卡 + 末尾的「更多」
   { id: 'stock-persona', size: 'sm' },
   { id: 'steamcmd-gui', size: 'sm' },
+  { id: 'dsh-ufo', size: 'sm' },
 ]
 
 export const PROJECTS = [
@@ -194,7 +195,7 @@ export const PROJECTS = [
     category: 'engine',
     status: 'released',
     year: '2026',
-    version: '2.0.6',
+    version: '0.4.9',
     license: 'MIT',
     lang: 'C#',
     openSource: true,
@@ -601,6 +602,34 @@ export const PROJECTS = [
         '.gitignore —— 白名单式忽略，只保留脚本与文档',
       ],
     },
+  },
+  {
+    id: 'dsh-ufo',
+    name: 'UFO 档案终端',
+    nameEn: 'dsh-ufo',
+    tagline: '八个国家的官方档案，一个入口',
+    blurb:
+      '美国空军蓝皮书、法国 GEIPAN、英国 DEFE 24、NARA RG 615——八个国家的官方档案收在一个入口里。没有结论，只有记录。',
+    summary:
+      '多国 UFO 档案的一个入口：美国空军蓝皮书（1947–1969，12,618 起）、NARA RG 615、法国 GEIPAN、英国国防部 DEFE 24、澳洲 A9755、新西兰 AIR、巴西与加拿大与智利的国家档案，以及 NUFORC 的民间目击。没有结论，只有记录，以及它们互相矛盾的地方。',
+    category: 'tool',
+    status: 'released',
+    year: '2026',
+    version: '0.4.9',
+    license: 'MIT',
+    lang: 'JavaScript',
+    openSource: true,
+    accent: '#2997ff',
+    cta: 'site',
+    cover: null,
+    tech: ['DeepSeek Harness', 'Node.js', '档案检索'],
+    links: {
+      demo: 'https://ufo.huoyue.club/',
+      play: null,
+      download: null,
+      source: 'https://github.com/HYClub/dsh-ufo',
+    },
+    detail: null,
   },
 ]
 

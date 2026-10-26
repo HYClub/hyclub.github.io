@@ -726,10 +726,11 @@ button {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 14px;
-  grid-column: span 2;
+  gap: 11px;
+  /* 只占一格：板上 9 张卡 + 这个磁贴，2 + 4 + 4 正好排满三行 */
+  grid-column: span 1;
   min-height: 200px;
-  padding: 36px 38px;
+  padding: 24px 22px;
   border: 1px dashed var(--line-hi);
   border-radius: var(--radius);
   background: rgba(255, 255, 255, 0.015);
@@ -783,16 +784,17 @@ button {
 }
 
 .tile-more__title {
-  font-size: 1.5rem;
+  font-size: 1.16rem;
   font-weight: 700;
   letter-spacing: -0.015em;
+  line-height: 1.45;
   color: var(--text);
 }
 
 .tile-more__desc {
-  max-width: 36ch;
-  font-size: 0.94rem;
-  line-height: 1.7;
+  max-width: 34ch;
+  font-size: 0.86rem;
+  line-height: 1.65;
   color: var(--text-mute);
 }
 

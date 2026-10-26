@@ -54,6 +54,7 @@ PROJECTS = [
     ("dsgs", "DeepSeek Harness Game Studios", "DSGS", "#3ddc97", None),
     ("vgame-toolkit", "影游开发套件", "vgame-toolkit", "#ffcf4d", None),
     ("steamcmd-gui", "SteamCMD 界面", "SteamCMD GUI", "#6fa8c8", None),
+    ("dsh-ufo", "UFO 档案终端", "dsh-ufo", "#2997ff", None),
 ]
 
 # 用到真实截图的项目，截图不入库（.asset-src/ 已 gitignore）。

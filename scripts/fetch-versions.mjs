@@ -37,6 +37,10 @@ const SOURCES = {
     repo: 'HYClub/deepseek-harness-game-studios',
     kind: 'tag',
   },
+  'dsh-ufo': {
+    repo: 'HYClub/dsh-ufo',
+    kind: 'tag',
+  },
   'vgame-toolkit': {
     repo: 'HYClub/vgame-toolkit',
     kind: 'json',
