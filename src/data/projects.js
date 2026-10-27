@@ -172,8 +172,8 @@ export const PROJECTS = [
     cover: null,
     tech: ['产品设计', 'HTML', '生态设计'],
     links: {
-      demo: 'https://vgame.huoyue.club/',
-      play: 'https://vgame.huoyue.club/',
+      demo: 'https://avgp.huoyue.club/',
+      play: 'https://avgp.huoyue.club/',
       download: null,
       source: null,
     },
