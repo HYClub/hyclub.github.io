@@ -450,6 +450,10 @@ button {
 /* 卡片上的醒目状态提示（「持续开发中 · 非稳定版本」这类）。
    用警示橙而不是主题色：它是提醒，不是装饰，也不该和主题色混在一起。 */
 .card__notice {
+  /* 必须高于 .card__stretch（z-index 2），否则提示条里的链接点不到，
+     会被整张卡的隐形链接吃掉 */
+  position: relative;
+  z-index: 3;
   display: flex;
   align-items: flex-start;
   gap: 8px;

@@ -201,7 +201,7 @@ export const PROJECTS = [
     openSource: true,
     accent: '#4f8cff',
     cta: 'site',
-    notice: '持续开发中 · 当前为非稳定版本，必须到 {link} 联系作者',
+    notice: '持续开发中 · 当前为非稳定版本 —— 抢先体验必须到 {link} 联系作者',
     noticeHref: 'https://github.com/HYClub/hyc-framework/discussions/1',
     noticeLinkLabel: 'Discussions',
     cover: null,
