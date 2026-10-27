@@ -215,8 +215,16 @@ export function cardHtml(project, { size = 'sm' } = {}) {
 
   // 醒目状态提示（例如「持续开发中，非稳定版本」）。
   // 放在角标和下文的标题之间 —— 扫一眼就会看到，不用读完整段介绍。
+  // 文案里用 {link} 占位，替换成可点的去处，不把裸地址写出来。
+  const noticeLink = project.noticeHref
+    ? `<a href="${escapeHtml(project.noticeHref)}" target="_blank" rel="noopener">` +
+      `${escapeHtml(project.noticeLinkLabel ?? '链接')}</a>`
+    : ''
+
   const noticeHtml = project.notice
-    ? `<p class="card__notice">${icons.warn}<span>${escapeHtml(project.notice)}</span></p>`
+    ? `<p class="card__notice">${icons.warn}<span>` +
+      escapeHtml(project.notice).replace('{link}', noticeLink) +
+      `</span></p>`
     : ''
 
   const body =

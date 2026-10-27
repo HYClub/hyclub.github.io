@@ -470,6 +470,17 @@ button {
   margin-top: 2px;
 }
 
+.card__notice a {
+  color: #ffd08a;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-all;
+}
+
+.card__notice a:hover {
+  color: #ffe3b8;
+}
+
 /* 详情页的星标：跟在那排「语言 / 版本 / 许可证 / 年份」下面 */
 .detail-stars {
   display: flex;
